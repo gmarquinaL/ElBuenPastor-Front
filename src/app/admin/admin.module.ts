@@ -12,7 +12,7 @@ import { DialogFormStudentsComponent } from './students/dialog-form-students/dia
 import { DialogFormPaymentComponent } from './payment/dialog-form-payment/dialog-form-payment.component';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { CustomDateAdapter } from '../shared/custom-adapter';
-import { DialogUploadFileComponent } from './payment/dialog-upload-payment/dialog-upload-payment.component';
+import { DialogUploadFileComponent } from './payment/dialog-upload-file/dialog-upload-file.component';
 
 @NgModule({
   declarations: [

@@ -26,6 +26,7 @@
 
   <mat-sidenav
     #leftsidenav
+    opened="true"
     position="start"
     [mode]="isOver ? 'over' : 'side'"
     [opened]="options.navPos === 'side' && options.sidenavOpened && !isOver"
@@ -83,6 +84,7 @@
   <!-- ============================================================== -->
   <mat-sidenav
     #leftsidenav
+    opened="flase"
     [mode]="'over'"
     [opened]="options.sidenavOpened && !isTablet"
     *ngIf="resView"

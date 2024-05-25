@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PaymentService } from 'src/app/services/payment.service';
 import { Payment } from 'src/app/model/payment.model';
 import { DialogFormPaymentComponent } from './dialog-form-payment/dialog-form-payment.component';
-import { DialogUploadFileComponent } from './dialog-upload-payment/dialog-upload-payment.component';
+import { DialogUploadFileComponent } from './dialog-upload-file/dialog-upload-file.component';
 
 @Component({
   selector: 'app-payment',
@@ -36,14 +36,11 @@ export class PaymentComponent implements OnInit {
 
   getPayments(): void {
     this.paymentService.getAll().subscribe({
-      next: (data) => {
-        this.payments = data;
-        this.filteredPayments = data;
+      next: (response) => {
+        this.payments = response.data;
+        this.filteredPayments = response.data;
       },
-      error: (error) => {
-        this.snackBar.open('Failed to load payments', 'ERROR', { duration: 3000 });
-        console.error('Error loading payments:', error);
-      }
+      error: () => this.snackBar.open('Error loading payments', 'ERROR', { duration: 3000 })
     });
   }
 
