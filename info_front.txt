@@ -1,0 +1,3 @@
+user
+usuario: admin@elbuenpastor.com
+Contraseña: elbuenpastor12
