@@ -18,24 +18,40 @@ export class PaymentComponent implements OnInit {
   payments: Payment[] = [];
   filteredPayments: Payment[] = [];
   displayedColumns: string[] = ['name', 'concept', 'amount', 'paymentDate', 'dueDate', 'actions'];
+  paymentDateFrom: Date | null = null;
+  paymentDateTo: Date | null = null;
+  textFilter: string = '';
 
   constructor(
     private cdRef: ChangeDetectorRef,
     public dialog: MatDialog,
     private paymentService: PaymentService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
   ) { }
 
   ngOnInit(): void {
     this.getPayments();
   }
 
-  applyFilter(event: Event): void {
+  applyTextFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredPayments = this.payments.filter(payment =>
-      payment.name.toLowerCase().includes(filterValue) ||
-      payment.concept.toLowerCase().includes(filterValue)
-    );
+    this.textFilter = filterValue;
+    this.applyFilters();
+  }
+
+  applyDateFilter(): void {
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    this.filteredPayments = this.payments.filter(payment => {
+      const matchesText = payment.name.toLowerCase().includes(this.textFilter) || 
+                          payment.concept.toLowerCase().includes(this.textFilter);
+      const matchesDate = (!this.paymentDateFrom || new Date(payment.paymentDate) >= this.paymentDateFrom) &&
+                          (!this.paymentDateTo || new Date(payment.paymentDate) <= this.paymentDateTo);
+      return matchesText && matchesDate;
+    });
+    this.cdRef.detectChanges();
   }
 
   getPayments(): void {
@@ -43,6 +59,7 @@ export class PaymentComponent implements OnInit {
       next: (response) => {
         this.payments = [...response.data];
         this.filteredPayments = [...response.data];
+        this.applyFilters(); // Ensure filters are applied initially
       },
       error: () => this.snackBar.open('Error al cargar los pagos', 'ERROR', { duration: 3000 })
     });
@@ -59,10 +76,10 @@ export class PaymentComponent implements OnInit {
         if (result.event === 'Add') {
           this.payments.push(result.data);
           this.filteredPayments = [...this.payments];
-          this.refreshTable();
         } else if (result.event === 'Update') {
           this.updateLocalPayment(result.data);
         }
+        this.applyFilters(); 
       }
     });
   }
@@ -91,6 +108,7 @@ export class PaymentComponent implements OnInit {
         this.paymentService.delete(id).subscribe({
           next: () => {
             this.payments = this.payments.filter(p => p.id !== id);
+            this.filteredPayments = this.filteredPayments.filter(p => p.id !== id);
             this.refreshTable();
             this.showSuccessMessage('Pago eliminado correctamente');
           },

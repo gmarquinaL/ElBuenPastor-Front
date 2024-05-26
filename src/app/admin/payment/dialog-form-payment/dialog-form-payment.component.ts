@@ -47,7 +47,7 @@ export class DialogFormPaymentComponent {
       this.paymentService.addPayment(payment).subscribe({
         next: (response) => {
           this.showSuccessMessage('Pago agregado correctamente');
-          this.dialogRef.close({ event: 'Add', data: response });
+          this.dialogRef.close({ event: 'Add', data: response.data });
         },
         error: () => this.showErrorMessage('Error al agregar pago')
       });
@@ -56,7 +56,7 @@ export class DialogFormPaymentComponent {
       this.paymentService.editPayment(payment).subscribe({
         next: (response) => {
           this.showSuccessMessage('Pago actualizado correctamente');
-          this.dialogRef.close({ event: 'Update', data: response });
+          this.dialogRef.close({ event: 'Update', data: response.data });
         },
         error: () => this.showErrorMessage('Error al actualizar pago')
       });
@@ -65,13 +65,6 @@ export class DialogFormPaymentComponent {
 
   onNoClick(): void {
     this.dialogRef.close();
-  }
-
-  confirmAction(): void {
-    if (this.paymentForm.valid) {
-      const payment: Payment = this.paymentForm.value;
-      this.dialogRef.close({ event: this.action === 'Agregar' ? 'Add' : 'Update', data: payment });
-    }
   }
 
   showSuccessMessage(message: string): void {
