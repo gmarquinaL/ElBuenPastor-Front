@@ -1,8 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Payment } from 'src/app/model/payment.model';
+import { PaymentService } from 'src/app/services/payment.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Payment } from 'src/app/model/payment.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dialog-form-payment',
@@ -10,41 +12,101 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./dialog-form-payment.component.scss']
 })
 export class DialogFormPaymentComponent {
+  paymentForm: FormGroup;
   action: string;
   localData: any;
-  form: FormGroup;
 
   constructor(
     public dialogRef: MatDialogRef<DialogFormPaymentComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
+    private paymentService: PaymentService,
     private snackBar: MatSnackBar
   ) {
     this.localData = { ...data };
-    this.action = this.localData.action || data.action;
-    this.form = this.fb.group({
-      id: [this.localData.id],
-      name: [this.localData.name, [Validators.required]],
-      concept: [this.localData.concept, [Validators.required]],
-      amount: [this.localData.amount, [Validators.required, Validators.min(0)]],
-      paymentDate: [this.localData.paymentDate, [Validators.required]],
-      dueDate: [this.localData.dueDate, [Validators.required]],
+    this.action = this.localData.action;
+
+    this.paymentForm = this.fb.group({
+      id: [this.localData.id || null],
+      name: [this.localData.name || '', Validators.required],
+      concept: [this.localData.concept || '', Validators.required],
+      amount: [this.localData.amount || '', [Validators.required, Validators.min(0.01)]],
+      paymentDate: [this.localData.paymentDate || '', Validators.required],
+      dueDate: [this.localData.dueDate || '', Validators.required]
     });
   }
 
-  get f() { return this.form.controls; }
-
   doAction(): void {
-    if (this.form.valid) {
-      this.dialogRef.close({ event: this.action, data: this.form.value });
-    } else {
-      this.snackBar.open('Por favor, completa todos los campos correctamente.', 'ERROR', {
-        duration: 2000,
+    if (this.paymentForm.invalid) {
+      this.snackBar.open('Formulario incompleto o con datos inválidos.', 'ERROR', { duration: 3000 });
+      return;
+    }
+
+    const payment: Payment = this.paymentForm.value;
+    if (this.action === 'Agregar') {
+      this.paymentService.addPayment(payment).subscribe({
+        next: (response) => {
+          this.showSuccessMessage('Pago agregado correctamente');
+          this.dialogRef.close({ event: 'Add', data: response });
+        },
+        error: () => this.showErrorMessage('Error al agregar pago')
+      });
+    } else if (this.action === 'Actualizar') {
+      payment.id = this.localData.id;
+      this.paymentService.editPayment(payment).subscribe({
+        next: (response) => {
+          this.showSuccessMessage('Pago actualizado correctamente');
+          this.dialogRef.close({ event: 'Update', data: response });
+        },
+        error: () => this.showErrorMessage('Error al actualizar pago')
       });
     }
   }
 
-  closeDialog(): void {
-    this.dialogRef.close({ event: 'Cancelar' });
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  confirmAction(): void {
+    if (this.paymentForm.valid) {
+      const payment: Payment = this.paymentForm.value;
+      this.dialogRef.close({ event: this.action === 'Agregar' ? 'Add' : 'Update', data: payment });
+    }
+  }
+
+  showSuccessMessage(message: string): void {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "bottom",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({
+      icon: "success",
+      title: message
+    });
+  }
+
+  showErrorMessage(message: string): void {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "bottom",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({
+      icon: "error",
+      title: message
+    });
   }
 }

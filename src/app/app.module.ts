@@ -31,6 +31,12 @@ import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { environment } from 'src/environments/environment';
 
 import { JwtModule } from "@auth0/angular-jwt";
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from './admin/payment/confirm-dialog/confirm-dialog.component';
 
 export function HttpLoaderFactory(http: HttpClient): any {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -41,7 +47,7 @@ export function tokenGetter(){
 }
 
 @NgModule({
-  declarations: [AppComponent, BlankComponent, FilterPipe],
+  declarations: [AppComponent, BlankComponent, FilterPipe, ConfirmDialogComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -50,6 +56,9 @@ export function tokenGetter(){
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatSnackBarModule,
     TablerIconsModule.pick(TablerIcons),
     TranslateModule.forRoot({
       loader: {
@@ -80,7 +89,9 @@ export function tokenGetter(){
     },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
-    { provide: DateAdapter, useClass: CustomDateAdapter }
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MatDialogRef, useValue: {} }
+
   ],
 })
 export class AppModule {}

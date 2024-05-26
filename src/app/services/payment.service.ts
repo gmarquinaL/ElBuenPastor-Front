@@ -12,75 +12,49 @@ export class PaymentService {
 
   constructor(private http: HttpClient) { }
 
-  // Obtener todos los pagos
+  // Obtain all payments
   getAll(): Observable<GenericResponse<Payment[]>> {
     return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/listAll`);
   }
 
-  // Subir archivo
-  uploadFile(file: File): Observable<GenericResponse<Payment[]>> {
+  uploadFile(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file, file.name);
-    return this.http.post<GenericResponse<Payment[]>>(`${this.apiUrl}/upload`, formData);
+    return this.http.post(`${this.apiUrl}/upload`, formData);
   }
 
-  // Obtener pagos por nombre
+  // Retrieve payments by name
   getByName(name: string): Observable<GenericResponse<Payment[]>> {
     return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/byName?name=${name}`);
   }
 
-  // Obtener pagos por código
+  // Retrieve payments by code
   getByCode(code: string): Observable<GenericResponse<Payment[]>> {
     return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/byCode?code=${code}`);
   }
 
-  // Obtener pagos por concepto
+  // Retrieve payments by concept
   getByConcept(concept: string): Observable<GenericResponse<Payment[]>> {
     return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/byConcept?concept=${concept}`);
   }
 
-  // Obtener pagos por fecha de pago
+  // Retrieve payments by payment date
   getByPaymentDate(paymentDate: string): Observable<GenericResponse<Payment[]>> {
     return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/byPaymentDate?paymentDate=${paymentDate}`);
   }
 
-  // Obtener pagos por múltiples filtros
-  getByNameCodeConceptPaymentDate(name: string, code: string, concept: string, paymentDate: string): Observable<GenericResponse<Payment[]>> {
-    return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/byNameCodeConceptPaymentDate?name=${name}&code=${code}&concept=${concept}&paymentDate=${paymentDate}`);
+  // Save a new payment
+  addPayment(payment: Payment): Observable<GenericResponse<Payment>> {
+    return this.http.post<GenericResponse<Payment>>(`${this.apiUrl}/add`, payment);
   }
 
-  // Guardar un nuevo pago
-  save(payment: Payment): Observable<Payment> {
-    return this.http.post<Payment>(`${this.apiUrl}`, payment);
+  // Update an existing payment
+  editPayment(payment: Payment): Observable<GenericResponse<Payment>> {
+    return this.http.put<GenericResponse<Payment>>(`${this.apiUrl}/edit/${payment.id}`, payment);
   }
 
-  // Actualizar un pago existente
-  update(payment: Payment): Observable<Payment> {
-    return this.http.put<Payment>(`${this.apiUrl}/${payment.id}`, payment);
-  }
-
-  // Eliminar un pago por ID
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  // Obtener códigos distintos
-  getDistinctCodes(): Observable<GenericResponse<string[]>> {
-    return this.http.get<GenericResponse<string[]>>(`${this.apiUrl}/distinct/codes`);
-  }
-
-  // Obtener conceptos distintos
-  getDistinctConcepts(): Observable<GenericResponse<string[]>> {
-    return this.http.get<GenericResponse<string[]>>(`${this.apiUrl}/distinct/concepts`);
-  }
-
-  // Obtener fechas de pago distintas
-  getDistinctPaymentDates(): Observable<GenericResponse<Date[]>> {
-    return this.http.get<GenericResponse<Date[]>>(`${this.apiUrl}/distinct/paymentDates`);
-  }
-
-  // Obtener nombres distintos
-  getDistinctNames(): Observable<GenericResponse<string[]>> {
-    return this.http.get<GenericResponse<string[]>>(`${this.apiUrl}/distinct/names`);
+  // Delete a payment by ID
+  delete(id: number): Observable<GenericResponse<void>> {
+    return this.http.delete<GenericResponse<void>>(`${this.apiUrl}/delete/${id}`);
   }
 }
