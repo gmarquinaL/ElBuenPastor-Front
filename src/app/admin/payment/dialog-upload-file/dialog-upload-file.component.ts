@@ -20,6 +20,18 @@ export class DialogUploadFileComponent {
 
   onFileSelected(event: any): void {
     this.file = event.target.files[0];
+    const allowedExtensions = ['xlsx', 'xls'];
+    const fileExtension = this.file?.name.split('.').pop()?.toLowerCase();
+
+    if (this.file && !allowedExtensions.includes(fileExtension)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Formato de archivo no válido',
+        text: 'Por favor, suba un archivo Excel (.xlsx o .xls).',
+        showConfirmButton: true
+      });
+      this.file = null;
+    }
   }
 
   uploadFile(): void {
@@ -41,9 +53,36 @@ export class DialogUploadFileComponent {
           });
         },
         error: (error) => {
-          const errorMessage = error.error?.message || 'Error al cargar el archivo';
-          this.snackBar.open(errorMessage, 'Cerrar', { duration: 3000 });
+          let errorMessage = 'Error al cargar el archivo. Por favor, verifique que es el archivo correcto.';
+          if (error.status === 400) {
+            switch (error.error?.status) {
+              case -4:
+                errorMessage = 'El archivo subido está vacío.';
+                break;
+              case -3:
+                errorMessage = 'El archivo subido no es un archivo de pagos válido.';
+                break;
+              case -2:
+                errorMessage = 'El archivo subido no contiene registros de pagos válidos.';
+                break;
+              default:
+                errorMessage = 'Error al cargar el archivo. Por favor, verifique que es el archivo correcto.';
+            }
+          }
+          Swal.fire({
+            icon: 'error',
+            title: 'Archivo no válido',
+            text: errorMessage,
+            showConfirmButton: true
+          });
         }
+      });
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Archivo no seleccionado',
+        text: 'Por favor, seleccione un archivo para subir.',
+        showConfirmButton: true
       });
     }
   }

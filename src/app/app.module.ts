@@ -39,6 +39,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from './admin/payment/confirm-dialog/confirm-dialog.component';
 import { PaymentDetailsComponent } from './admin/payment/payment-details/payment-details.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
 
 
 export function HttpLoaderFactory(http: HttpClient): any {
@@ -59,6 +61,8 @@ export function tokenGetter(){
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
+    MatPaginatorModule,
+    MatTableModule,
     MaterialModule,
     MatDialogModule,
     MatButtonModule,

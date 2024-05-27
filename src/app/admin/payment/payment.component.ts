@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PaymentService } from 'src/app/services/payment.service';
@@ -9,16 +9,21 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
 import { PaymentDetailsComponent } from './payment-details/payment-details.component';
 import Swal from 'sweetalert2';
 import { ChangeDetectorRef } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.scss']
 })
-export class PaymentComponent implements OnInit {
+export class PaymentComponent implements OnInit, AfterViewInit {
   payments: Payment[] = [];
-  filteredPayments: Payment[] = [];
+  dataSource = new MatTableDataSource<Payment>();
   displayedColumns: string[] = ['name', 'concept', 'amount', 'paymentDate', 'dueDate', 'actions'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   paymentDateFrom: Date | null = null;
   paymentDateTo: Date | null = null;
   textFilter: string = '';
@@ -31,7 +36,21 @@ export class PaymentComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getPayments();
+    this.loadPayments();
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
+  loadPayments(): void {
+    this.paymentService.getAll().subscribe({
+      next: (response) => {
+        this.dataSource.data = response.data;
+        this.dataSource.paginator = this.paginator; // Asegúrate de asignar el paginador aquí.
+      },
+      error: () => this.snackBar.open('Error al cargar los pagos', 'ERROR', { duration: 3000 })
+    });
   }
 
   applyTextFilter(event: Event): void {
@@ -40,40 +59,32 @@ export class PaymentComponent implements OnInit {
     this.applyFilters();
   }
 
-  applyDateFilter(): void {
-    this.applyFilters();
-  }
-
   applyFilters(): void {
-    this.filteredPayments = this.payments.filter(payment => {
-      const matchesText = payment.name.toLowerCase().includes(this.textFilter) || 
-                          payment.concept.toLowerCase().includes(this.textFilter);
-      const matchesDate = (!this.paymentDateFrom || new Date(payment.paymentDate) >= this.paymentDateFrom) &&
-                          (!this.paymentDateTo || new Date(payment.paymentDate) <= this.paymentDateTo);
-      return matchesText && matchesDate;
-    });
-    this.cdRef.detectChanges();
+    this.dataSource.filterPredicate = this.createFilter();
+    this.dataSource.filter = JSON.stringify({ text: this.textFilter, fromDate: this.paymentDateFrom, toDate: this.paymentDateTo });
   }
 
+  createFilter(): (data: Payment, filter: string) => boolean {
+    let filterFunction = function(data: Payment, filter: string): boolean {
+      let searchTerms = JSON.parse(filter);
+      const textMatch = data.name.toLowerCase().includes(searchTerms.text.toLowerCase()) || data.concept.toLowerCase().includes(searchTerms.text.toLowerCase());
+      const paymentDate = new Date(data.paymentDate).getTime();
+      const fromDate = searchTerms.fromDate ? new Date(searchTerms.fromDate).getTime() : null;
+      const toDate = searchTerms.toDate ? new Date(searchTerms.toDate).getTime() : null;
+      return textMatch && 
+             (fromDate ? paymentDate >= fromDate : true) && 
+             (toDate ? paymentDate <= toDate : true);
+    };
+    return filterFunction;
+  }
   clearFilters(): void {
     this.textFilter = '';
     this.paymentDateFrom = null;
     this.paymentDateTo = null;
-    this.filteredPayments = [...this.payments];
-    this.cdRef.detectChanges();
+    this.dataSource.filter = '';
   }
 
-  getPayments(): void {
-    this.paymentService.getAll().subscribe({
-      next: (response) => {
-        this.payments = [...response.data];
-        this.filteredPayments = [...response.data];
-        this.applyFilters(); // Ensure filters are applied initially
-      },
-      error: () => this.snackBar.open('Error al cargar los pagos', 'ERROR', { duration: 3000 })
-    });
-  }
-
+  
   openDialog(action: string, obj: any = {}): void {
     const dialogRef = this.dialog.open(DialogFormPaymentComponent, {
       data: { ...obj, action: action },
@@ -81,11 +92,13 @@ export class PaymentComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Update') {
-          this.updateLocalPayment(result.data);
+      if (result && result.event === 'Update') {
+        let index = this.dataSource.data.findIndex(p => p.id === obj.id);
+        if (index !== -1) {
+          this.dataSource.data[index] = { ...this.dataSource.data[index], ...result.data };
+          this.dataSource._updateChangeSubscription(); // Refresh the data source to update the table
         }
-        this.applyFilters(); 
+        this.showSuccessMessage('Pago actualizado correctamente');
       }
     });
   }
@@ -98,8 +111,7 @@ export class PaymentComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.event === 'Upload') {
-        this.getPayments(); // Fetch new data
-        this.refreshTable(); // Refresh the table view
+    this.loadPayments();
       }
     });
   }
@@ -114,9 +126,7 @@ export class PaymentComponent implements OnInit {
       if (result) {
         this.paymentService.delete(id).subscribe({
           next: () => {
-            this.payments = this.payments.filter(p => p.id !== id);
-            this.filteredPayments = this.filteredPayments.filter(p => p.id !== id);
-            this.refreshTable();
+            this.loadPayments();
             this.showSuccessMessage('Pago eliminado correctamente');
           },
           error: () => this.showErrorMessage('Error al eliminar el pago')
@@ -129,28 +139,11 @@ export class PaymentComponent implements OnInit {
     this.openDialog('Actualizar', payment);
   }
 
-  updateLocalPayment(updatedPayment: Payment): void {
-    const index = this.payments.findIndex(p => p.id === updatedPayment.id);
-    if (index !== -1) {
-      this.payments[index] = updatedPayment;
-      this.filteredPayments[index] = updatedPayment;
-      this.refreshTable();
-    }
-  }
-
   viewPaymentDetails(payment: Payment): void {
-    console.log(payment);
     this.dialog.open(PaymentDetailsComponent, {
       width: '400px',
       data: payment
     });
-  }
-  
-
-  refreshTable(): void {
-    this.payments = [...this.payments];
-    this.filteredPayments = [...this.filteredPayments];
-    this.cdRef.detectChanges();
   }
 
   showSuccessMessage(message: string): void {

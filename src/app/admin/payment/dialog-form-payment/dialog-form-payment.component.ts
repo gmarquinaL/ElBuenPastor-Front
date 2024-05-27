@@ -46,7 +46,6 @@ export class DialogFormPaymentComponent {
     payment.id = this.localData.id;
     this.paymentService.editPayment(payment.id, payment).subscribe({
       next: (response) => {
-        this.showSuccessMessage('Pago actualizado correctamente');
         this.dialogRef.close({ event: 'Update', data: response.data });
       },
       error: () => this.showErrorMessage('Error al actualizar pago')
