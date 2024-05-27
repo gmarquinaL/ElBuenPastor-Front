@@ -43,23 +43,23 @@ export class DialogFormPaymentComponent {
     }
 
     const payment: Payment = this.paymentForm.value;
-    if (this.action === 'Agregar') {
-      this.paymentService.addPayment(payment).subscribe({
-        next: (response) => {
-          this.showSuccessMessage('Pago agregado correctamente');
-          this.dialogRef.close({ event: 'Add', data: response.data });
-        },
-        error: () => this.showErrorMessage('Error al agregar pago')
-      });
-    } else if (this.action === 'Actualizar') {
-      payment.id = this.localData.id;
-      this.paymentService.editPayment(payment).subscribe({
-        next: (response) => {
-          this.showSuccessMessage('Pago actualizado correctamente');
-          this.dialogRef.close({ event: 'Update', data: response.data });
-        },
-        error: () => this.showErrorMessage('Error al actualizar pago')
-      });
+  if (this.action === 'Add') {
+    this.paymentService.addPayment(payment).subscribe({
+      next: (response) => {
+        this.showSuccessMessage('Pago agregado correctamente');
+        this.dialogRef.close({ event: 'Add', data: response.data });
+      },
+      error: () => this.showErrorMessage('Error al agregar pago')
+    });
+  } else if (this.action === 'Update') {
+    payment.id = this.localData.id;
+    this.paymentService.editPayment(payment).subscribe({
+      next: (response) => {
+        this.showSuccessMessage('Pago actualizado correctamente');
+        this.dialogRef.close({ event: 'Update', data: response.data });
+      },
+      error: () => this.showErrorMessage('Error al actualizar pago')
+    });
     }
   }
 

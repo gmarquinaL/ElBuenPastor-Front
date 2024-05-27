@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { GenericResponse } from '../model/generic-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,23 +13,23 @@ export class GenericService<T> {
     @Inject(String) protected url: string,
   ) { }
 
-  findAll(){
-    return this.http.get<T[]>(this.url);
+  findAll(): Observable<GenericResponse<T[]>> {
+    return this.http.get<GenericResponse<T[]>>(this.url);
   }
 
-  findById(id: number){
-    return this.http.get<T>(`${this.url}/${id}`)
+  findById(id: number): Observable<GenericResponse<T>> {
+    return this.http.get<GenericResponse<T>>(`${this.url}/${id}`);
   }
 
-  save(t: T){
-    return this.http.post(this.url, t);
+  save(t: T): Observable<GenericResponse<T>> {
+    return this.http.post<GenericResponse<T>>(this.url, t);
   }
 
-  update(t: T, id: number){
-    return this.http.put(`${this.url}/${id}`, t);
+  update(t: T, id: number): Observable<GenericResponse<T>> {
+    return this.http.put<GenericResponse<T>>(`${this.url}/${id}`, t);
   }
 
-  delete(id: number){
-    return this.http.delete(`${this.url}/${id}`)
+  delete(id: number): Observable<GenericResponse<void>> {
+    return this.http.delete<GenericResponse<void>>(`${this.url}/${id}`);
   }
 }

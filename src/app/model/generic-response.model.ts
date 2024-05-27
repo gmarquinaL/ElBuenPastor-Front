@@ -1,6 +1,9 @@
 export interface GenericResponse<T> {
-  status: string;
-  code: number;
-  message: string;
   data: T;
+  additionalInfo?: {
+    newPaymentsCount?: number;
+    existingPaymentsCount?: number;
+  };
+  message: string;
+  status: number;
 }

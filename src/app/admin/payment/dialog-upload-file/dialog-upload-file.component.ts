@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PaymentService } from 'src/app/services/payment.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dialog-upload-file',
@@ -24,12 +25,24 @@ export class DialogUploadFileComponent {
   uploadFile(): void {
     if (this.file) {
       this.paymentService.uploadFile(this.file).subscribe({
-        next: () => {
-          this.snackBar.open('Archivo cargado exitosamente', 'Cerrar', { duration: 3000 });
-          this.dialogRef.close({ event: 'Upload' });
+        next: (response) => {
+          const newPaymentsCount = response.additionalInfo?.newPaymentsCount || 0;
+          const existingPaymentsCount = response.additionalInfo?.existingPaymentsCount || 0;
+          let message = `<span style="font-size: 24px;">Se agregaron ${newPaymentsCount} pagos nuevos.</span>`;
+          if (existingPaymentsCount > 0) {
+            message += `<br><span style="font-size: 18px;">${existingPaymentsCount} pagos ya existían y no se añadieron.</span>`;
+          }
+          Swal.fire({
+            icon: 'success',
+            title: message,
+            showConfirmButton: true
+          }).then(() => {
+            this.dialogRef.close({ event: 'Upload', newPaymentsCount, existingPaymentsCount });
+          });
         },
-        error: () => {
-          this.snackBar.open('Error al cargar el archivo', 'Cerrar', { duration: 3000 });
+        error: (error) => {
+          const errorMessage = error.error?.message || 'Error al cargar el archivo';
+          this.snackBar.open(errorMessage, 'Cerrar', { duration: 3000 });
         }
       });
     }

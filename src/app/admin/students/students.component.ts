@@ -26,16 +26,10 @@ export class StudentsComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.init();
     this.getStudents();
   }
 
-  init()
-  {
-    this.studentService.findAll().subscribe((data) => {
-      this.students = data;
-    });
-  }
+
 
   openDialog(action: string, obj: any)
   {
@@ -81,21 +75,21 @@ export class StudentsComponent implements OnInit{
   add(obj: any): void {
     this.studentService.save(obj).subscribe((data) => {
       this.matSnackBar.open('Estudiante registrado correctamente', 'INFO', {duration: 2000});
-      this.init();
+
     });  
   }
 
   update(obj: any): void {
     this.studentService.update(obj, obj.id).subscribe((data) => {
       this.matSnackBar.open('Estudiante actualizado correctamente', 'INFO', {duration: 2000});
-      this.init();
+
     });  
   }
 
   delete(obj: any): void {
     this.studentService.delete(obj.id).subscribe((data) => {
       this.matSnackBar.open('Estudiante eliminado correctamente', 'INFO', {duration: 2000});
-      this.init();
+
     });
   }
 }

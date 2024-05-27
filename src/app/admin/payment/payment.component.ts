@@ -76,6 +76,7 @@ export class PaymentComponent implements OnInit {
         if (result.event === 'Add') {
           this.payments.push(result.data);
           this.filteredPayments = [...this.payments];
+          this.refreshTable();
         } else if (result.event === 'Update') {
           this.updateLocalPayment(result.data);
         }
@@ -92,7 +93,8 @@ export class PaymentComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.event === 'Upload') {
-        this.getPayments();
+        this.getPayments(); // Fetch new data
+        this.refreshTable(); // Refresh the table view
       }
     });
   }
@@ -138,38 +140,18 @@ export class PaymentComponent implements OnInit {
   }
 
   showSuccessMessage(message: string): void {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "bottom",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-      }
-    });
-    Toast.fire({
-      icon: "success",
-      title: message
+    Swal.fire({
+      icon: 'success',
+      title: message,
+      showConfirmButton: true
     });
   }
 
   showErrorMessage(message: string): void {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "bottom",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-      }
-    });
-    Toast.fire({
-      icon: "error",
-      title: message
+    Swal.fire({
+      icon: 'error',
+      title: message,
+      showConfirmButton: true
     });
   }
 }
