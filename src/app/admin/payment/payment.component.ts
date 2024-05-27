@@ -6,6 +6,7 @@ import { Payment } from 'src/app/model/payment.model';
 import { DialogFormPaymentComponent } from './dialog-form-payment/dialog-form-payment.component';
 import { DialogUploadFileComponent } from './dialog-upload-file/dialog-upload-file.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
+import { PaymentDetailsComponent } from './payment-details/payment-details.component';
 import Swal from 'sweetalert2';
 import { ChangeDetectorRef } from '@angular/core';
 
@@ -54,6 +55,14 @@ export class PaymentComponent implements OnInit {
     this.cdRef.detectChanges();
   }
 
+  clearFilters(): void {
+    this.textFilter = '';
+    this.paymentDateFrom = null;
+    this.paymentDateTo = null;
+    this.filteredPayments = [...this.payments];
+    this.cdRef.detectChanges();
+  }
+
   getPayments(): void {
     this.paymentService.getAll().subscribe({
       next: (response) => {
@@ -73,11 +82,7 @@ export class PaymentComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        if (result.event === 'Add') {
-          this.payments.push(result.data);
-          this.filteredPayments = [...this.payments];
-          this.refreshTable();
-        } else if (result.event === 'Update') {
+        if (result.event === 'Update') {
           this.updateLocalPayment(result.data);
         }
         this.applyFilters(); 
@@ -132,6 +137,15 @@ export class PaymentComponent implements OnInit {
       this.refreshTable();
     }
   }
+
+  viewPaymentDetails(payment: Payment): void {
+    console.log(payment);
+    this.dialog.open(PaymentDetailsComponent, {
+      width: '400px',
+      data: payment
+    });
+  }
+  
 
   refreshTable(): void {
     this.payments = [...this.payments];

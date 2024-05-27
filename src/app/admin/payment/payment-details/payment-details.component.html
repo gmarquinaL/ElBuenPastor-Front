@@ -1,0 +1,63 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content class="p-24">
+    <div class="row m-b-24">
+      <div class="col-sm-4 d-flex align-items-center">
+        <h4 class="mat-subtitle-2 f-s-18 f-w-600">Pago #{{ data.id }}</h4>
+      </div>
+      <div class="col-sm-8 text-right">
+        <button mat-stroked-button color="primary" (click)="onNoClick()">Volver</button>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Código:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.code }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Nombre:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.name }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Doc. de Referencia:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.referenceDoc }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Monto:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.amount | currency }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Agencia:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.agency }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Fecha de Pago:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.paymentDate | date:'dd/MM/yyyy' }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Fecha de Vencimiento:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.dueDate | date:'dd/MM/yyyy' }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Método de Pago:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.paymentMethod }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-12">
+        <span class="f-w-600 f-s-15 mat-body-1">Usuario:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ data.username }}</h6>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

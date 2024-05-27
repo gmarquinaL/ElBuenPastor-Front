@@ -43,24 +43,14 @@ export class DialogFormPaymentComponent {
     }
 
     const payment: Payment = this.paymentForm.value;
-  if (this.action === 'Add') {
-    this.paymentService.addPayment(payment).subscribe({
-      next: (response) => {
-        this.showSuccessMessage('Pago agregado correctamente');
-        this.dialogRef.close({ event: 'Add', data: response.data });
-      },
-      error: () => this.showErrorMessage('Error al agregar pago')
-    });
-  } else if (this.action === 'Update') {
     payment.id = this.localData.id;
-    this.paymentService.editPayment(payment).subscribe({
+    this.paymentService.editPayment(payment.id, payment).subscribe({
       next: (response) => {
         this.showSuccessMessage('Pago actualizado correctamente');
         this.dialogRef.close({ event: 'Update', data: response.data });
       },
       error: () => this.showErrorMessage('Error al actualizar pago')
     });
-    }
   }
 
   onNoClick(): void {
@@ -68,38 +58,20 @@ export class DialogFormPaymentComponent {
   }
 
   showSuccessMessage(message: string): void {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "bottom",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-      }
-    });
-    Toast.fire({
+    Swal.fire({
       icon: "success",
-      title: message
+      title: `<div style="font-size: 24px;">${message}</div>`,
+      showConfirmButton: false,
+      timer: 3000
     });
   }
 
   showErrorMessage(message: string): void {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "bottom",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-      }
-    });
-    Toast.fire({
+    Swal.fire({
       icon: "error",
-      title: message
+      title: `<div style="font-size: 24px;">${message}</div>`,
+      showConfirmButton: false,
+      timer: 3000
     });
   }
 }

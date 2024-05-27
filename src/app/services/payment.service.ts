@@ -42,12 +42,8 @@ export class PaymentService extends GenericService<Payment> {
     return this.http.get<GenericResponse<Payment[]>>(`${this.apiUrl}/byPaymentDate?paymentDate=${paymentDate}`);
   }
 
-  addPayment(payment: Payment): Observable<GenericResponse<Payment>> {
-    return this.http.post<GenericResponse<Payment>>(`${this.url}/add`, payment);
-  }
-
-  editPayment(payment: Payment): Observable<GenericResponse<Payment>> {
-    return this.http.put<GenericResponse<Payment>>(`${this.url}/edit/${payment.id}`, payment);
+  editPayment(id: number, payment: Payment): Observable<GenericResponse<Payment>> {
+    return this.http.put<GenericResponse<Payment>>(`${this.apiUrl}/edit/${id}`, payment);
   }
 
   override delete(id: number): Observable<GenericResponse<void>> {

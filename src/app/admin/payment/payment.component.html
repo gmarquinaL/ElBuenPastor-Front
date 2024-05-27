@@ -8,6 +8,7 @@
             class="p-b-0"
             placeholder="Buscar por nombre o concepto"
             (keyup)="applyTextFilter($event)"
+            [(ngModel)]="textFilter"
           />
           <mat-icon matSuffix>
             <i-tabler name="search" class="icon-20"></i-tabler>
@@ -41,8 +42,8 @@
         </mat-form-field>
       </div>
       <div class="col-12 col-md-4 text-end d-flex align-items-center justify-content-end gap-2">
-        <button mat-flat-button (click)="openDialog('Registrar', {})" color="primary" class="w-100 w-md-auto">
-          Registrar Pago
+        <button mat-flat-button (click)="clearFilters()" color="warn" class="w-100 w-md-auto">
+          Limpiar Filtros
         </button>
         <button mat-flat-button (click)="openUploadDialog()" color="accent" class="w-100 w-md-auto">
           Cargar Archivo
@@ -90,8 +91,12 @@
             <button mat-icon-button color="warn" (click)="deletePayment(payment.id)">
               <mat-icon>delete</mat-icon>
             </button>
+            <button mat-icon-button color="accent" (click)="viewPaymentDetails(payment)">
+              <mat-icon>visibility</mat-icon>
+            </button>
           </td>
         </ng-container>
+        
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

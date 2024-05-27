@@ -29,6 +29,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { CustomDateAdapter } from './shared/custom-adapter';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { environment } from 'src/environments/environment';
+import { MatCardModule } from '@angular/material/card';
 
 import { JwtModule } from "@auth0/angular-jwt";
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -37,6 +38,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from './admin/payment/confirm-dialog/confirm-dialog.component';
+import { PaymentDetailsComponent } from './admin/payment/payment-details/payment-details.component';
 
 
 export function HttpLoaderFactory(http: HttpClient): any {
@@ -48,11 +50,12 @@ export function tokenGetter(){
 }
 
 @NgModule({
-  declarations: [AppComponent, BlankComponent, FilterPipe, ConfirmDialogComponent],
+  declarations: [AppComponent, BlankComponent, FilterPipe, ConfirmDialogComponent, PaymentDetailsComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    MatCardModule,
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
