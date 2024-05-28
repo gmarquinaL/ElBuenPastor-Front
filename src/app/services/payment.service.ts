@@ -4,16 +4,18 @@ import { Observable } from 'rxjs';
 import { Payment } from '../model/payment.model';
 import { GenericResponse } from '../model/generic-response.model';
 import { GenericService } from './generic.service';
+import { environment } from '../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentService extends GenericService<Payment> {
 
-  private apiUrl = 'http://localhost:8080/api/payments';
+  private apiUrl = `${environment.HOST}/payments`;
 
   constructor(http: HttpClient) {
-    super(http, 'http://localhost:8080/api/payments');
+    super(http, `${environment.HOST}/payments`);
   }
 
   getAll(): Observable<GenericResponse<Payment[]>> {
