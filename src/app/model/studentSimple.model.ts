@@ -3,5 +3,6 @@ export interface StudentSimple {
     fullName: string; 
     guardianName?: string;  
     siblingName?: string;  
+    gender: string; 
   }
   

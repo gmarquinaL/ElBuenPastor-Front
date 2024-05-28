@@ -9,7 +9,7 @@
         </mat-form-field>
       </div>
       <div class="col-sm-8 text-end d-flex align-items-center justify-content-end">
-        <button mat-flat-button (click)="openStudentDialog()" color="primary">
+        <button mat-flat-button (click)="openStudentDialog('Registrar')" color="primary">
           Registrar Estudiante
         </button>
       </div>
@@ -21,14 +21,29 @@
   <div class="col-sm-6 col-lg-4" *ngFor="let student of dataSource.data">
     <mat-card class="cardWithShadow">
       <mat-card-content class="text-center p-24">
+        <!-- Imágenes basadas en el género -->
+        <img *ngIf="student.gender === 'masculino'"
+             src="assets/images/profile/male_avatar.jpg"
+             class="rounded-circle border p-5"
+             width="100">
+        <img *ngIf="student.gender === 'femenino'"
+             src="assets/images/profile/female_avatar.jpg"
+             class="rounded-circle border p-5"
+             width="100">
+        
         <h4 mat-card-title class="card-title m-t-16 m-b-0">
           {{ student.fullName }}
         </h4>
         <span class="f-s-12">
-          Apoderado: {{ student.guardianName }} - Hermanos: {{ student.siblingName || 'No tiene' }}
+          <span *ngIf="student.guardianName" class="bg-light-success text-success border-success rounded f-w-600 p-6 p-y-4 f-s-12">
+            Guardián: {{ student.guardianName }}
+          </span>
+          <span *ngIf="student.siblingName" class="bg-light-success text-success border-success rounded f-w-600 p-6 p-y-4 f-s-12">
+            Hermano: {{ student.siblingName }}
+          </span>
         </span>
         <div class="m-t-20">
-          <button mat-flat-button type="button" color="primary" (click)="openStudentDialog(student)">Actualizar</button>
+          <button mat-flat-button type="button" class="m-r-8" color="primary" (click)="openStudentDialog('Actualizar', student)">Actualizar</button>
           <button mat-flat-button type="button" color="warn" (click)="deleteStudent(student.id)">Eliminar</button>
         </div>
       </mat-card-content>

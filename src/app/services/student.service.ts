@@ -1,34 +1,46 @@
+// student.service.ts
 import { Injectable } from '@angular/core';
-import { Student } from '../model/student.model';
-import { GenericService } from './generic.service';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
+import { Student } from '../model/student.model';
+import { StudentSimple } from '../model/studentSimple.model';
+import { GenericResponse } from '../model/generic-response.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StudentService extends GenericService<Student>{
+export class StudentService {
 
-  dataChange: BehaviorSubject<Student[]> = new BehaviorSubject<Student[]>([]);
-  constructor(
-    protected override http: HttpClient
-  ) { 
-    super(http, `${environment.HOST}/students`);
+  private apiUrl = `${environment.HOST}/students`;
+
+  constructor(private http: HttpClient) { }
+
+  getAllStudentsSimple(): Observable<GenericResponse<StudentSimple[]>> {
+    return this.http.get<GenericResponse<StudentSimple[]>>(`${this.apiUrl}/simple`);
   }
 
-  get data(): Student[] {
-    return this.dataChange.value;
-  }
-  
-  getAll(): void {
-    this.http.get<Student[]>(`${environment.HOST}/students`).subscribe((data) => {
-      this.dataChange.next(data);
-    });
+  getStudentDetails(id: number): Observable<GenericResponse<Student>> {
+    return this.http.get<GenericResponse<Student>>(`${this.apiUrl}/${id}`);
   }
 
-  findAllEnabled()
-  {
-    return this.http.get<Student[]>(`${this.url}/enabled`);
+  addStudent(student: Student): Observable<GenericResponse<Student>> {
+    return this.http.post<GenericResponse<Student>>(`${this.apiUrl}/add`, student);
+  }
+
+  updateStudent(student: Student): Observable<GenericResponse<Student>> {
+    return this.http.put<GenericResponse<Student>>(`${this.apiUrl}/update/${student.id}`, student);
+  }
+
+  deleteStudent(id: number): Observable<GenericResponse<void>> {
+    return this.http.delete<GenericResponse<void>>(`${this.apiUrl}/delete/${id}`);
+  }
+
+  assignGuardianToStudent(studentId: number, guardianId: number): Observable<GenericResponse<Student>> {
+    return this.http.post<GenericResponse<Student>>(`${this.apiUrl}/assignGuardian/${studentId}/${guardianId}`, {});
+  }
+
+  assignSiblingToStudent(studentId: number, siblingId: number): Observable<GenericResponse<Student>> {
+    return this.http.post<GenericResponse<Student>>(`${this.apiUrl}/assignSibling/${studentId}/${siblingId}`, {});
   }
 }

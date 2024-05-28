@@ -3,24 +3,25 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material.module';
-import { StudentsComponent } from './students/students.component';
+import { StudentComponent } from './students/student.component';
 import { PaymentComponent } from './payment/payment.component';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import * as TablerIcons from 'angular-tabler-icons/icons';
 import { SharedModule } from '../shared/shared.module';
-import { DialogFormStudentsComponent } from './students/dialog-form-students/dialog-form-students.component';
 import { DialogFormPaymentComponent } from './payment/dialog-form-payment/dialog-form-payment.component';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { CustomDateAdapter } from '../shared/custom-adapter';
 import { DialogUploadFileComponent } from './payment/dialog-upload-file/dialog-upload-file.component';
-
+import { StudentDialogComponent } from './students/student-dialog/student-dialog.component';
+import { StudentDetailsComponent } from './students/student-details/student-details.component';
 @NgModule({
   declarations: [
-    StudentsComponent,
+    StudentComponent,
     PaymentComponent,
-    DialogFormStudentsComponent,
     DialogFormPaymentComponent,
     DialogUploadFileComponent,
+    StudentDialogComponent,
+    StudentDetailsComponent
   ],
   imports: [
     CommonModule,

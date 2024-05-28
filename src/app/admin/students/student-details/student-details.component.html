@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>{{ action }} Estudiante</h2>
+<mat-dialog-content>
+  <form [formGroup]="studentForm">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Nombres</mat-label>
+      <input matInput formControlName="fullName" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Nivel</mat-label>
+      <input matInput formControlName="level" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Sección</mat-label>
+      <input matInput formControlName="section" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Grado</mat-label>
+      <input matInput formControlName="grade" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Estado Actual</mat-label>
+      <mat-select formControlName="current" required>
+        <mat-option [value]="true">Activo</mat-option>
+        <mat-option [value]="false">Inactivo</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-button color="primary" (click)="saveStudent()">{{ action }}</button>
+</mat-dialog-actions>

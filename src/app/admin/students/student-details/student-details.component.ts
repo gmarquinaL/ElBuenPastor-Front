@@ -1,7 +1,7 @@
-// student-details.component.ts
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StudentService } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 
@@ -11,48 +11,48 @@ import { Student } from 'src/app/model/student.model';
   styleUrls: ['./student-details.component.scss']
 })
 export class StudentDetailsComponent implements OnInit {
-  student: Student;
+  studentForm: FormGroup;
+  action: string;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: Student,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<StudentDetailsComponent>,
+    private fb: FormBuilder,
     private studentService: StudentService,
     private snackBar: MatSnackBar
   ) {
-    this.student = { ...data }; // Copiar datos iniciales para edición
+    this.action = data.action;
+    this.studentForm = this.fb.group({
+      id: [data.student?.id],
+      fullName: [data.student?.fullName || '', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      level: [data.student?.level || '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      section: [data.student?.section || '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      grade: [data.student?.grade || '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      current: [data.student?.current || false, [Validators.required]]
+    });
   }
 
-  ngOnInit(): void {
-    if (this.student.id) {
-      // Si hay un ID, cargar los detalles del estudiante
-      this.studentService.getStudentDetails(this.student.id).subscribe({
-        next: (response) => {
-          this.student = response;
-        },
-        error: () => this.snackBar.open('Error fetching student details', 'ERROR', { duration: 3000 })
-      });
-    }
-  }
+  ngOnInit(): void {}
 
   saveStudent(): void {
-    if (this.student.id) {
-      // Actualizar estudiante existente
-      this.studentService.updateStudent(this.student).subscribe({
-        next: () => {
-          this.snackBar.open('Student updated successfully', 'OK', { duration: 3000 });
-          this.dialogRef.close(true); // Cerrar diálogo y recargar lista
-        },
-        error: () => this.snackBar.open('Error updating student', 'ERROR', { duration: 3000 })
-      });
-    } else {
-      // Crear nuevo estudiante
-      this.studentService.addStudent(this.student).subscribe({
-        next: () => {
-          this.snackBar.open('Student added successfully', 'OK', { duration: 3000 });
-          this.dialogRef.close(true); // Cerrar diálogo y recargar lista
-        },
-        error: () => this.snackBar.open('Error adding student', 'ERROR', { duration: 3000 })
-      });
+    if (this.studentForm.valid) {
+      if (this.action === 'Actualizar') {
+        this.studentService.updateStudent(this.studentForm.value).subscribe({
+          next: () => {
+            this.snackBar.open('Estudiante actualizado exitosamente', 'OK', { duration: 3000 });
+            this.dialogRef.close(true);
+          },
+          error: () => this.snackBar.open('Error al actualizar el estudiante', 'ERROR', { duration: 3000 })
+        });
+      } else {
+        this.studentService.addStudent(this.studentForm.value).subscribe({
+          next: () => {
+            this.snackBar.open('Estudiante agregado exitosamente', 'OK', { duration: 3000 });
+            this.dialogRef.close(true);
+          },
+          error: () => this.snackBar.open('Error al agregar el estudiante', 'ERROR', { duration: 3000 })
+        });
+      }
     }
   }
 

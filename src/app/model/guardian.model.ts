@@ -1,7 +1,8 @@
-import { Person } from './person.model';
 import { Student } from './student.model'; 
 
-export interface Guardian extends Person {
+export interface Guardian {
+  id : number;
+  fullName: String;
   livesWithStudent: boolean;
   students?: Student[]; 
 }
