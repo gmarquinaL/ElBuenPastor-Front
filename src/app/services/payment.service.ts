@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Payment } from '../model/payment.model';
 import { GenericResponse } from '../model/generic-response.model';
@@ -49,4 +49,23 @@ export class PaymentService extends GenericService<Payment> {
   override delete(id: number): Observable<GenericResponse<void>> {
     return this.http.delete<GenericResponse<void>>(`${this.apiUrl}/delete/${id}`);
   }
+  exportPayments(filters: any): Observable<Blob> {
+    let params = new HttpParams();
+    if (filters.name) {
+      params = params.append('name', filters.name);
+    }
+    if (filters.fromDate) {
+      params = params.append('fromDate', filters.fromDate);
+    }
+    if (filters.toDate) {
+      params = params.append('toDate', filters.toDate);
+    }
+    
+    return this.http.get(`${this.apiUrl}/export`, {
+      params: params,
+      responseType: 'blob'
+    });
+  
+  }
+
 }

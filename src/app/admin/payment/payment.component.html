@@ -29,6 +29,8 @@
       <div class="col-12 col-md-4 text-end d-flex align-items-center justify-content-end gap-2">
         <button mat-flat-button (click)="clearFilters()" color="warn" class="w-100 w-md-auto">Limpiar Filtros</button>
         <button mat-flat-button (click)="openUploadDialog()" color="accent" class="w-100 w-md-auto">Cargar Archivo</button>
+        <!-- Botón para exportar a Excel -->
+        <button mat-flat-button (click)="exportToExcel()" color="primary" class="w-100 w-md-auto">Exportar a Excel</button>
       </div>
     </div>
   </mat-card-content>

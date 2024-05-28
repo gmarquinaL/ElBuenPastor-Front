@@ -11,7 +11,8 @@ import Swal from 'sweetalert2';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
@@ -47,7 +48,7 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     this.paymentService.getAll().subscribe({
       next: (response) => {
         this.dataSource.data = response.data;
-        this.dataSource.paginator = this.paginator; // Asegúrate de asignar el paginador aquí.
+        this.dataSource.paginator = this.paginator;
       },
       error: () => this.snackBar.open('Error al cargar los pagos', 'ERROR', { duration: 3000 })
     });
@@ -138,6 +139,27 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   editPayment(payment: Payment): void {
     this.openDialog('Actualizar', payment);
   }
+
+  exportToExcel(): void {
+    const filters = {
+      text: this.textFilter,
+      fromDate: this.paymentDateFrom ? this.paymentDateFrom.toISOString() : null,
+      toDate: this.paymentDateTo ? this.paymentDateTo.toISOString() : null
+    };
+    this.paymentService.exportPayments(filters).subscribe(data => {
+      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'payments_report.xlsx';
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      this.snackBar.open('Error al descargar el archivo: ' + error.message, 'ERROR', { duration: 5000 });
+    });
+  }
+  
+  
 
   viewPaymentDetails(payment: Payment): void {
     this.dialog.open(PaymentDetailsComponent, {
