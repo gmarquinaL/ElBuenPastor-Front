@@ -1,0 +1,38 @@
+<!-- student.component.html -->
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="row justify-content-between">
+      <div class="col-sm-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <input matInput placeholder="Buscar por nombre" (keyup)="applyFilter($event)">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+      <div class="col-sm-8 text-end d-flex align-items-center justify-content-end">
+        <button mat-flat-button (click)="openStudentDialog()" color="primary">
+          Registrar Estudiante
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<div class="row">
+  <div class="col-sm-6 col-lg-4" *ngFor="let student of dataSource.data">
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-center p-24">
+        <h4 mat-card-title class="card-title m-t-16 m-b-0">
+          {{ student.fullName }}
+        </h4>
+        <span class="f-s-12">
+          Apoderado: {{ student.guardianName }} - Hermanos: {{ student.siblingName || 'No tiene' }}
+        </span>
+        <div class="m-t-20">
+          <button mat-flat-button type="button" color="primary" (click)="openStudentDialog(student)">Actualizar</button>
+          <button mat-flat-button type="button" color="warn" (click)="deleteStudent(student.id)">Eliminar</button>
+        </div>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+    </mat-card>
+  </div>
+</div>
