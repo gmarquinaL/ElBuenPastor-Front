@@ -11,8 +11,6 @@ import Swal from 'sweetalert2';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
