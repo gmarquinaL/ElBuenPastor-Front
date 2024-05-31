@@ -51,23 +51,24 @@ export class PaymentService extends GenericService<Payment> {
   override delete(id: number): Observable<GenericResponse<void>> {
     return this.http.delete<GenericResponse<void>>(`${this.apiUrl}/delete/${id}`);
   }
-  exportPayments(filters: any): Observable<Blob> {
+
+ /* exportFilteredPayments(name: string, startDate: string, endDate: string): Observable<Blob> {
     let params = new HttpParams();
-    if (filters.name) {
-      params = params.append('name', filters.name);
+    if (name) {
+      params = params.append('name', name);
     }
-    if (filters.fromDate) {
-      params = params.append('fromDate', filters.fromDate);
+    if (startDate) {
+      params = params.append('startDate', startDate);
     }
-    if (filters.toDate) {
-      params = params.append('toDate', filters.toDate);
+    if (endDate) {
+      params = params.append('endDate', endDate);
     }
-    
-    return this.http.get(`${this.apiUrl}/export`, {
+
+    return this.http.get<Blob>(`${this.apiUrl}/exportFiltered`, {
       params: params,
-      responseType: 'blob'
+      responseType: 'blob' as 'json' // TypeScript hack for Blob data
     });
-  
-  }
+  }*/
+
 
 }

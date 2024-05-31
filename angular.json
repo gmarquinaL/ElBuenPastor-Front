@@ -42,7 +42,10 @@
               "src/styles.scss",
               "src/assets/scss/style.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/excel-export.js"
+            ]
+            
           },
           "configurations": {
             "production": {

@@ -11,6 +11,9 @@ import Swal from 'sweetalert2';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { exportPaymentsToExcel } from 'src/assets/excel-export.js';
+import { logoBase64 } from '../payment/logoBase64';
+
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
@@ -35,6 +38,9 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.paymentService.getAll().subscribe(response => {
+      this.payments = response.data;
+    });
     this.loadPayments();
   }
 
@@ -138,18 +144,20 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     this.openDialog('Actualizar', payment);
   }
 
-  exportToExcel(): void {
+ /* exportToExcel(): void {
+    // Convertir las fechas a formato ISO solo fecha (yyyy-MM-dd)
     const filters = {
-      text: this.textFilter,
-      fromDate: this.paymentDateFrom ? this.paymentDateFrom.toISOString() : null,
-      toDate: this.paymentDateTo ? this.paymentDateTo.toISOString() : null
+      name: this.textFilter,
+      startDate: this.paymentDateFrom ? this.formatDate(this.paymentDateFrom) : null,
+      endDate: this.paymentDateTo ? this.formatDate(this.paymentDateTo) : null
     };
-    this.paymentService.exportPayments(filters).subscribe(data => {
+  
+    this.paymentService.exportFilteredPayments(filters.name, filters.startDate, filters.endDate).subscribe(data => {
       const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = 'payments_report.xlsx';
+      anchor.download = 'filtered_payments_report.xlsx';
       anchor.click();
       window.URL.revokeObjectURL(url);
     }, error => {
@@ -157,8 +165,19 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     });
   }
   
+  // Función auxiliar para formatear fechas
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0]; // Extrae y retorna solo la fecha en formato yyyy-MM-dd
+  }
   
+  */
+  
+  exportToExcel(): void {
+    const filteredData = this.dataSource.filteredData.length ? this.dataSource.filteredData : this.dataSource.data;
+    exportPaymentsToExcel(filteredData, logoBase64);
+  }
 
+  
   viewPaymentDetails(payment: Payment): void {
     this.dialog.open(PaymentDetailsComponent, {
       width: '400px',
