@@ -1,11 +1,14 @@
-import { Person } from "./person.model";
 import { Guardian } from './guardian.model';
 
-export class Student extends Person{
-    level: string;
-    section: string;
-    grade: string;
-    current: boolean;
-    guardian?: Guardian;
-    siblings?: Student[];
+export class Student {
+  id?: number;
+  fullName: string;
+  level: string;
+  section: string;
+  grade: string;
+  gender: string;
+  current: boolean;
+  guardianId?: number;
+  guardian?: Guardian;
+  siblings?: Student[];
 }

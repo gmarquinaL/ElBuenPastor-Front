@@ -41,6 +41,7 @@ import { ConfirmDialogComponent } from './admin/payment/confirm-dialog/confirm-d
 import { PaymentDetailsComponent } from './admin/payment/payment-details/payment-details.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 
 
 export function HttpLoaderFactory(http: HttpClient): any {
@@ -67,6 +68,7 @@ export function tokenGetter(){
     MatDialogModule,
     MatButtonModule,
     MatSnackBarModule,
+    MatChipsModule,
     TablerIconsModule.pick(TablerIcons),
     TranslateModule.forRoot({
       loader: {

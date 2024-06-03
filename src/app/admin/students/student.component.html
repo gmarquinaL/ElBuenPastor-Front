@@ -1,10 +1,10 @@
-<!-- student.component.html -->
 <mat-card class="cardWithShadow">
   <mat-card-content>
     <div class="row justify-content-between">
       <div class="col-sm-4">
         <mat-form-field appearance="outline" class="w-100">
-          <input matInput placeholder="Buscar por nombre" (keyup)="applyFilter($event)">
+          <mat-label>Buscar estudiante</mat-label>
+          <input matInput placeholder="Nombre" (keyup)="applyFilter($event)">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
@@ -18,33 +18,43 @@
 </mat-card>
 
 <div class="row">
-  <div class="col-sm-6 col-lg-4" *ngFor="let student of dataSource.data">
+  <div class="col-sm-12 col-md-6 col-lg-4" *ngFor="let student of dataSource.data">
     <mat-card class="cardWithShadow">
-      <mat-card-content class="text-center p-24">
+      <mat-card-content class="text-center student-card-content">
         <!-- Imágenes basadas en el género -->
-        <img *ngIf="student.gender === 'masculino'"
-             src="assets/images/profile/male_avatar.jpg"
-             class="rounded-circle border p-5"
+        <img *ngIf="student.gender?.toLowerCase() === 'masculino'"
+             src="assets/images/profile/user6.jpg"
+             class="rounded-circle border profile-img"
              width="100">
-        <img *ngIf="student.gender === 'femenino'"
-             src="assets/images/profile/female_avatar.jpg"
-             class="rounded-circle border p-5"
+        <img *ngIf="student.gender?.toLowerCase() === 'femenino'"
+             src="assets/images/profile/user3.jpg"
+             class="rounded-circle border profile-img"
              width="100">
-        
-        <h4 mat-card-title class="card-title m-t-16 m-b-0">
+
+        <h4 mat-card-title class="card-title mt-16 mb-0">
           {{ student.fullName }}
         </h4>
-        <span class="f-s-12">
-          <span *ngIf="student.guardianName" class="bg-light-success text-success border-success rounded f-w-600 p-6 p-y-4 f-s-12">
-            Guardián: {{ student.guardianName }}
-          </span> <br>
-          <span *ngIf="student.siblingName" class="bg-light-success text-success border-success rounded f-w-600 p-6 p-y-4 f-s-12">
+        <br>
+        <span class="fs-12">
+         
+          <span *ngIf="student.siblingName !== 'No tiene hermanos'; else noSibling" class="bg-light-success text-success border-success rounded fw-600 px-6 py-4 fs-12">
             Hermano: {{ student.siblingName }}
           </span>
+          <ng-template #noSibling>
+            <span class="bg-light-danger text-danger border-danger rounded fw-600 px-6 py-4 fs-12">Sin hermanos</span>
+          </ng-template>
         </span>
-        <div class="m-t-20">
-          <button mat-flat-button type="button" class="m-r-8" color="primary" (click)="openStudentDialog('Actualizar', student)">Actualizar</button>
+        <br> <br>
+         <span *ngIf="student.guardianName !== 'No tiene apoderado'; else noGuardian" class="guardian rounded fw-600 px-6 py-4 fs-12">
+            Guardián: {{ student.guardianName }}
+          </span>
+          <ng-template #noGuardian>
+            <span class="text-danger">Sin guardián</span>
+          </ng-template>
+        <div class="button-group mt-20">
+          <button mat-flat-button type="button" class="mr-8" color="primary" (click)="openStudentDialog('Actualizar', student)">Editar</button>
           <button mat-flat-button type="button" color="warn" (click)="deleteStudent(student.id)">Eliminar</button>
+          <button mat-flat-button type="button" color="accent" (click)="openStudentDialog('Detalles', student)">Ver</button>
         </div>
       </mat-card-content>
       <mat-divider></mat-divider>

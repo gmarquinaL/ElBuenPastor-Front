@@ -1,8 +1,8 @@
 import { Student } from './student.model'; 
 
 export interface Guardian {
-  id : number;
-  fullName: String;
+  id?: number;  // Opcional para permitir nuevos guardianes sin ID
+  fullName: string;
   livesWithStudent: boolean;
   students?: Student[]; 
 }

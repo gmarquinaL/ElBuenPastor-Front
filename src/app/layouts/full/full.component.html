@@ -25,7 +25,7 @@
   <!-- ============================================================== -->
 
   <mat-sidenav
-    #leftsidenav
+  #leftSidenavStart
     opened="true"
     position="start"
     [mode]="isOver ? 'over' : 'side'"
@@ -83,8 +83,9 @@
   <!-- horizontal Sidebar -->
   <!-- ============================================================== -->
   <mat-sidenav
-    #leftsidenav
+  #leftSidenavEnd
     opened="flase"
+    position="end"
     [mode]="'over'"
     [opened]="options.sidenavOpened && !isTablet"
     *ngIf="resView"

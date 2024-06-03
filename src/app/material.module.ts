@@ -78,8 +78,12 @@ import { MatTableModule } from '@angular/material/table';
     MatSnackBarModule,
     MatTooltipModule,
     MatPaginatorModule,
+    MatButtonModule,
     MatSortModule,
     MatTableModule,
+    MatChipsModule,
+    MatButtonModule,
+
   ],
 })
 export class MaterialModule {}

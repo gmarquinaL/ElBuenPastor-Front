@@ -144,33 +144,6 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     this.openDialog('Actualizar', payment);
   }
 
- /* exportToExcel(): void {
-    // Convertir las fechas a formato ISO solo fecha (yyyy-MM-dd)
-    const filters = {
-      name: this.textFilter,
-      startDate: this.paymentDateFrom ? this.formatDate(this.paymentDateFrom) : null,
-      endDate: this.paymentDateTo ? this.formatDate(this.paymentDateTo) : null
-    };
-  
-    this.paymentService.exportFilteredPayments(filters.name, filters.startDate, filters.endDate).subscribe(data => {
-      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = 'filtered_payments_report.xlsx';
-      anchor.click();
-      window.URL.revokeObjectURL(url);
-    }, error => {
-      this.snackBar.open('Error al descargar el archivo: ' + error.message, 'ERROR', { duration: 5000 });
-    });
-  }
-  
-  // Función auxiliar para formatear fechas
-  private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0]; // Extrae y retorna solo la fecha en formato yyyy-MM-dd
-  }
-  
-  */
   
   exportToExcel(): void {
     const filteredData = this.dataSource.filteredData.length ? this.dataSource.filteredData : this.dataSource.data;

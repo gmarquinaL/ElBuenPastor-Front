@@ -1,7 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription, Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { StudentService } from 'src/app/services/student.service';
 import { GuardianService } from 'src/app/services/guardian.service';
 import { Student } from 'src/app/model/student.model';
@@ -13,13 +15,12 @@ import { StudentSimple } from 'src/app/model/studentSimple.model';
   templateUrl: './student-dialog.component.html',
   styleUrls: ['./student-dialog.component.scss']
 })
-export class StudentDialogComponent implements OnInit {
-  firstForm: FormGroup;
-  secondForm: FormGroup;
+export class StudentDialogComponent implements OnInit, OnDestroy {
+  studentForm: FormGroup;
   guardians: Guardian[] = [];
   students: StudentSimple[] = [];
-  hasSibling: boolean = false;
-  maxDate: Date = new Date();
+  filteredStudents: Observable<StudentSimple[]>[] = [];
+  subscriptions = new Subscription();
   action: string;
 
   constructor(
@@ -30,89 +31,123 @@ export class StudentDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<StudentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.action = data.action;
-
-    this.firstForm = this.fb.group({
-      id: [data.student?.id],
-      fullName: [data.student?.fullName || '', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      level: [data.student?.level || '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      section: [data.student?.section || '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      grade: [data.student?.grade || '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      current: [data.student?.current || false, [Validators.required]],
-      hasSibling: [false],
-      siblingId: [''],
-      gender: [data.student?.gender || '', [Validators.required]]  
-    });
-    
-
-    this.secondForm = this.fb.group({
-      guardianName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      guardianLivesWithStudent: [false, [Validators.required]]
-    });
+    this.action = data.action || 'Agregar';
+    this.initForm(data.student);
   }
 
   ngOnInit(): void {
-    if (this.data.student && this.data.student.id) {
-      this.firstForm.patchValue(this.data.student);
-      this.hasSibling = !!this.data.student.siblings && this.data.student.siblings.length > 0;
-      if (this.data.student.siblings && this.data.student.siblings.length > 0) {
-        this.firstForm.patchValue({ siblingId: this.data.student.siblings[0].id });
-      }
-    }
     this.loadGuardians();
     this.loadSiblings();
   }
 
-  loadGuardians(): void {
-    this.guardianService.getAllGuardians().subscribe({
-      next: (response) => {
-        this.guardians = response.data;
-      },
-      error: () => this.snackBar.open('Error al cargar guardianes', 'ERROR', { duration: 3000 })
-    });
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
-  loadSiblings(): void {
-    this.studentService.getAllStudentsSimple().subscribe({
-      next: (response) => {
-        this.students = response.data;
-      },
-      error: () => this.snackBar.open('Error al cargar hermanos', 'ERROR', { duration: 3000 })
+  initForm(student?: Student): void {
+    this.studentForm = this.fb.group({
+      id: [student?.id],
+      fullName: [student?.fullName || '', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      level: [student?.level || '', [Validators.required]],
+      section: [student?.section || '', [Validators.required]],
+      grade: [student?.grade || '', [Validators.required]],
+      gender: [student?.gender || '', [Validators.required]],
+      current: [student?.current || false],
+      siblings: this.fb.array([]),
+      guardianId: [student?.guardian?.id],
+      guardianName: [student?.guardian?.fullName || '', Validators.required],
+      guardianLivesWithStudent: [student?.guardian?.livesWithStudent || false]
     });
-  }
 
-  onSave(): void {
-    if (this.firstForm.valid && this.secondForm.valid) {
-      const guardianData: Guardian = {
-        id: null,  // Establecemos id como null porque es un nuevo guardián
-        fullName: this.secondForm.value.guardianName,
-        livesWithStudent: this.secondForm.value.guardianLivesWithStudent
-      };
-  
-      const studentData: Student = {
-        ...this.firstForm.value,
-        guardian: guardianData,
-        siblings: this.hasSibling && this.firstForm.value.siblingId ? [{ id: this.firstForm.value.siblingId }] : []
-      };
-  
-      if (this.data.student && this.data.student.id) {
-        this.studentService.updateStudent(studentData).subscribe({
-          next: () => this.handleResponse('Estudiante actualizado con éxito'),
-          error: () => this.handleResponse('Error al actualizar estudiante', true)
-        });
-      } else {
-        this.studentService.addStudent(studentData).subscribe({
-          next: () => this.handleResponse('Estudiante agregado con éxito'),
-          error: () => this.handleResponse('Error al agregar estudiante', true)
-        });
-      }
+    if (student?.siblings) {
+      student.siblings.forEach(sibling => this.addSibling(sibling));
     }
   }
 
-  handleResponse(message: string, isError: boolean = false): void {
-    this.snackBar.open(message, isError ? 'ERROR' : 'OK', { duration: 3000 });
-    if (!isError) {
-      this.dialogRef.close('confirm');
+  get siblings(): FormArray {
+    return this.studentForm.get('siblings') as FormArray;
+  }
+
+  addSibling(sibling?: Student): void {
+    const siblingFormGroup = this.fb.group({
+      id: [sibling?.id],
+      fullName: [sibling?.fullName, Validators.required]
+    });
+    this.siblings.push(siblingFormGroup);
+    this.filteredStudents.push(this.createFilterForSibling(siblingFormGroup.get('fullName') as FormControl));
+  }
+
+  createFilterForSibling(control: FormControl): Observable<StudentSimple[]> {
+    return control.valueChanges.pipe(
+      startWith(''),
+      map(value => typeof value === 'string' ? value.toLowerCase() : value.fullName.toLowerCase()),
+      map(name => name ? this.filterStudents(name) : this.students.slice())
+    );
+  }
+
+  filterStudents(name: string): StudentSimple[] {
+    return this.students.filter(student => student.fullName.toLowerCase().includes(name.toLowerCase()));
+  }
+
+  removeSibling(index: number): void {
+    this.siblings.removeAt(index);
+    this.filteredStudents.splice(index, 1); // Remove the corresponding filter
+  }
+
+  loadGuardians(): void {
+    this.subscriptions.add(
+      this.guardianService.getAllGuardians().subscribe({
+        next: (response) => this.guardians = response.data,
+        error: () => this.snackBar.open('Error al cargar guardianes', 'ERROR', { duration: 3000 })
+      })
+    );
+  }
+
+  loadSiblings(): void {
+    this.subscriptions.add(
+      this.studentService.getAllStudentsSimple().subscribe({
+        next: (response) => {
+          this.students = response.data;
+          this.siblings.controls.forEach((control, index) => {
+            this.filteredStudents[index] = this.createFilterForSibling(control.get('fullName') as FormControl);
+          });
+        },
+        error: () => this.snackBar.open('Error al cargar hermanos', 'ERROR', { duration: 3000 })
+      })
+    );
+  }
+
+  onSave(): void {
+    if (this.studentForm.valid) {
+      const formData = this.studentForm.value;
+      const studentData: Student = {
+        ...formData,
+        guardian: {
+          id: formData.guardianId,
+          fullName: formData.guardianName,
+          livesWithStudent: formData.guardianLivesWithStudent
+        },
+        siblings: this.siblings.value.filter(s => s.fullName) // Filter out siblings without names
+      };
+
+      const operation = studentData.id ? 
+        this.studentService.updateStudent(studentData) : 
+        this.studentService.addStudent(studentData);
+
+      this.subscriptions.add(
+        operation.subscribe({
+          next: () => {
+            this.snackBar.open(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`, 'OK', { duration: 3000 });
+            this.dialogRef.close(true);
+          },
+          error: (error) => {
+            console.error('Error al guardar el estudiante', error);
+            this.snackBar.open('Error al guardar el estudiante', 'ERROR', { duration: 3000 });
+          }
+        })
+      );
+    } else {
+      this.snackBar.open('Por favor, complete el formulario correctamente', 'ERROR', { duration: 3000 });
     }
   }
 

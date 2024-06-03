@@ -43,4 +43,7 @@ export class StudentService {
   assignSiblingToStudent(studentId: number, siblingId: number): Observable<GenericResponse<Student>> {
     return this.http.post<GenericResponse<Student>>(`${this.apiUrl}/assignSibling/${studentId}/${siblingId}`, {});
   }
+  searchStudents(query: string): Observable<GenericResponse<StudentSimple[]>> {
+    return this.http.get<GenericResponse<StudentSimple[]>>(`${this.apiUrl}/search?query=${query}`);
+  }
 }

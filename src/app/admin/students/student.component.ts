@@ -1,13 +1,16 @@
+
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { StudentService } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { StudentSimple } from 'src/app/model/studentSimple.model';
 import { StudentDialogComponent } from './student-dialog/student-dialog.component';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-student',
@@ -15,8 +18,8 @@ import { StudentDialogComponent } from './student-dialog/student-dialog.componen
   styleUrls: ['./student.component.scss']
 })
 export class StudentComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['fullName', 'actions'];
-  dataSource = new MatTableDataSource<StudentSimple>();
+  displayedColumns: string[] = ['fullName', 'gender', 'actions'];
+  dataSource = new MatTableDataSource<StudentSimple & { gender?: string }>();
   private subscriptions = new Subscription();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -40,8 +43,22 @@ export class StudentComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.dataSource.data = response.data;
         this.dataSource.paginator = this.paginator;
+        this.loadAdditionalStudentDetails();
       },
       error: () => this.snackBar.open('Error al cargar los estudiantes', 'ERROR', { duration: 3000 })
+    }));
+  }
+
+  loadAdditionalStudentDetails(): void {
+    const detailsRequests = this.dataSource.data.map(studentSimple =>
+      this.studentService.getStudentDetails(studentSimple.id).pipe(
+        map(response => ({ ...studentSimple, gender: response.data.gender })),
+        catchError(() => of({ ...studentSimple, gender: 'Desconocido' }))
+      )
+    );
+
+    this.subscriptions.add(forkJoin(detailsRequests).subscribe(completed => {
+      this.dataSource.data = completed;
     }));
   }
 
@@ -51,14 +68,39 @@ export class StudentComponent implements OnInit, OnDestroy {
   }
 
   openStudentDialog(action: string, studentSimple?: StudentSimple): void {
+    if (studentSimple) {
+      this.studentService.getStudentDetails(studentSimple.id).subscribe({
+        next: (response) => {
+          const studentData = response.data;
+          this.openDialog(action, studentData);
+        },
+        error: () => this.snackBar.open('Error al cargar los detalles del estudiante', 'ERROR', { duration: 3000 })
+      });
+    } else {
+      this.openDialog(action);
+    }
+  }
+
+  private openDialog(action: string, studentData?: Student): void {
     const dialogRef = this.dialog.open(StudentDialogComponent, {
       width: '650px',
-      data: { action, student: studentSimple ? { ...studentSimple } : {} as Student }
+      data: { action, student: studentData || {} as Student }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === 'confirm') {
-        this.loadStudents(); // Recargar la lista de estudiantes si hubo cambios
+      if (result && result.action === 'confirm') {
+        if (result.student.id) {
+          // Actualizar el estudiante en el dataSource
+          const index = this.dataSource.data.findIndex(s => s.id === result.student.id);
+          if (index !== -1) {
+            this.dataSource.data[index] = result.student;
+            this.dataSource._updateChangeSubscription(); // Necesario para refrescar los datos
+          }
+        } else {
+          // Agregar nuevo estudiante al dataSource
+          this.dataSource.data.push(result.student);
+          this.dataSource._updateChangeSubscription(); // Refrescar los datos
+        }
       }
     });
   }
@@ -66,10 +108,17 @@ export class StudentComponent implements OnInit, OnDestroy {
   deleteStudent(id: number): void {
     this.studentService.deleteStudent(id).subscribe({
       next: () => {
+        const index = this.dataSource.data.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.dataSource.data.splice(index, 1);
+          this.dataSource._updateChangeSubscription(); // Refrescar los datos
+        }
         this.snackBar.open('Estudiante eliminado con éxito', 'OK', { duration: 3000 });
-        this.loadStudents();
       },
       error: () => this.snackBar.open('Error al eliminar el estudiante', 'ERROR', { duration: 3000 })
     });
   }
+
+
+  
 }
