@@ -8,7 +8,6 @@ export class Student {
   grade: string;
   gender: string;
   current: boolean;
-  guardianId?: number;
   guardian?: Guardian;
   siblings?: Student[];
 }

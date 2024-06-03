@@ -70,18 +70,27 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
 
   addSibling(sibling?: Student): void {
     const siblingFormGroup = this.fb.group({
-      id: [sibling?.id],
-      fullName: [sibling?.fullName, Validators.required]
+      id: [sibling?.id], // ID no requerido aquí, se establecerá en base a la selección del nombre
+      fullName: ['', Validators.required]
     });
     this.siblings.push(siblingFormGroup);
-    this.filteredStudents.push(this.createFilterForSibling(siblingFormGroup.get('fullName') as FormControl));
+    this.filteredStudents.push(this.createFilterForSibling(siblingFormGroup.get('fullName') as FormControl, siblingFormGroup));
   }
 
-  createFilterForSibling(control: FormControl): Observable<StudentSimple[]> {
+  createFilterForSibling(control: FormControl, siblingFormGroup: FormGroup): Observable<StudentSimple[]> {
     return control.valueChanges.pipe(
       startWith(''),
-      map(value => typeof value === 'string' ? value.toLowerCase() : value.fullName.toLowerCase()),
-      map(name => name ? this.filterStudents(name) : this.students.slice())
+      map(value => typeof value === 'string' ? value.toLowerCase() : value),
+      map(name => name ? this.filterStudents(name) : this.students.slice()),
+      map(filtered => {
+        control.valueChanges.subscribe(val => {
+          const selectedStudent = this.students.find(student => student.fullName.toLowerCase() === val.toLowerCase());
+          if (selectedStudent) {
+            siblingFormGroup.get('id').setValue(selectedStudent.id);
+          }
+        });
+        return filtered;
+      })
     );
   }
 
@@ -109,7 +118,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.students = response.data;
           this.siblings.controls.forEach((control, index) => {
-            this.filteredStudents[index] = this.createFilterForSibling(control.get('fullName') as FormControl);
+            this.filteredStudents[index] = this.createFilterForSibling(control.get('fullName') as FormControl, control as FormGroup);
           });
         },
         error: () => this.snackBar.open('Error al cargar hermanos', 'ERROR', { duration: 3000 })
@@ -127,11 +136,11 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
           fullName: formData.guardianName,
           livesWithStudent: formData.guardianLivesWithStudent
         },
-        siblings: this.siblings.value.filter(s => s.fullName) // Filter out siblings without names
+        siblings: this.siblings.value.filter(s => s.id) // Filtra hermanos sin ID
       };
 
-      const operation = studentData.id ? 
-        this.studentService.updateStudent(studentData) : 
+      const operation = studentData.id ?
+        this.studentService.updateStudent(studentData) :
         this.studentService.addStudent(studentData);
 
       this.subscriptions.add(
@@ -141,8 +150,8 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
             this.dialogRef.close(true);
           },
           error: (error) => {
-            console.error('Error al guardar el estudiante', error);
-            this.snackBar.open('Error al guardar el estudiante', 'ERROR', { duration: 3000 });
+            console.error('Error al guardar el estudiante:', error);
+            this.snackBar.open('Error al guardar el estudiante: ' + (error.error.message || 'Error desconocido'), 'ERROR', { duration: 3000 });
           }
         })
       );

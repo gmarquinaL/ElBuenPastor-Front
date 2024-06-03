@@ -1,32 +1,64 @@
-<h2 mat-dialog-title>{{ action }} Estudiante</h2>
+<h2 mat-dialog-title>{{ action === 'Actualizar' ? 'Actualizar' : 'Agregar' }} Estudiante</h2>
 <mat-dialog-content>
-  <form [formGroup]="studentForm">
+  <form [formGroup]="studentForm" class="form-container">
+    <!-- Datos del Estudiante -->
     <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Nombres</mat-label>
+      <mat-label>Nombre Completo</mat-label>
       <input matInput formControlName="fullName" required />
+      <mat-error *ngIf="studentForm.get('fullName').invalid">Este campo es obligatorio.</mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Nivel</mat-label>
       <input matInput formControlName="level" required />
+      <mat-error *ngIf="studentForm.get('level').invalid">Este campo es obligatorio.</mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Sección</mat-label>
       <input matInput formControlName="section" required />
+      <mat-error *ngIf="studentForm.get('section').invalid">Este campo es obligatorio.</mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Grado</mat-label>
       <input matInput formControlName="grade" required />
+      <mat-error *ngIf="studentForm.get('grade').invalid">Este campo es obligatorio.</mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Estado Actual</mat-label>
-      <mat-select formControlName="current" required>
-        <mat-option [value]="true">Activo</mat-option>
-        <mat-option [value]="false">Inactivo</mat-option>
+      <mat-label>Género</mat-label>
+      <mat-select formControlName="gender">
+        <mat-option value="Masculino">Masculino</mat-option>
+        <mat-option value="Femenino">Femenino</mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-checkbox formControlName="current">Estudiante Activo</mat-checkbox>
+
+    <!-- Datos del Guardián -->
+    <div formGroupName="guardian">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Nombre del Guardián</mat-label>
+        <input matInput formControlName="guardianName" required />
+        <mat-error *ngIf="studentForm.get('guardian.guardianName').invalid">Este campo es obligatorio.</mat-error>
+      </mat-form-field>
+      <mat-checkbox formControlName="guardianLivesWithStudent">El guardián vive con el estudiante</mat-checkbox>
+    </div>
+
+    <!-- Gestión de Hermanos -->
+    <div formArrayName="siblings">
+      <div *ngFor="let sibling of siblings.controls; let i = index" [formGroupName]="i">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Hermano {{ i + 1 }}</mat-label>
+          <input matInput formControlName="fullName" required />
+          <button mat-icon-button matSuffix aria-label="Eliminar hermano" (click)="removeSibling(i)">
+            <mat-icon>remove_circle_outline</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <button mat-button (click)="addSibling()">Agregar Hermano</button>
+    </div>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button (click)="cancel()">Cancelar</button>
-  <button mat-button color="primary" (click)="saveStudent()">{{ action }}</button>
+  <button mat-button color="primary" (click)="saveStudent()" [disabled]="!studentForm.valid">
+    {{ action === 'Actualizar' ? 'Actualizar' : 'Agregar' }}
+  </button>
 </mat-dialog-actions>

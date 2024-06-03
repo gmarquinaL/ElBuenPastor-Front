@@ -11,6 +11,7 @@ import { Student } from 'src/app/model/student.model';
 import { StudentSimple } from 'src/app/model/studentSimple.model';
 import { StudentDialogComponent } from './student-dialog/student-dialog.component';
 import { of } from 'rxjs';
+import {ConfirmDialogComponent} from "../payment/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'app-student',
@@ -65,6 +66,10 @@ export class StudentComponent implements OnInit, OnDestroy {
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   openStudentDialog(action: string, studentSimple?: StudentSimple): void {
@@ -106,13 +111,23 @@ export class StudentComponent implements OnInit, OnDestroy {
   }
 
   deleteStudent(id: number): void {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Confirmar Eliminación',
+        message: '¿Estás seguro de querer eliminar este estudiante?'
+      }
+    });
+
+    confirmDialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.performDeletion(id);
+      }
+    });
+  }
+  private performDeletion(id: number): void {
     this.studentService.deleteStudent(id).subscribe({
       next: () => {
-        const index = this.dataSource.data.findIndex(s => s.id === id);
-        if (index !== -1) {
-          this.dataSource.data.splice(index, 1);
-          this.dataSource._updateChangeSubscription(); // Refrescar los datos
-        }
+        this.dataSource.data = this.dataSource.data.filter(student => student.id !== id);
         this.snackBar.open('Estudiante eliminado con éxito', 'OK', { duration: 3000 });
       },
       error: () => this.snackBar.open('Error al eliminar el estudiante', 'ERROR', { duration: 3000 })
@@ -120,5 +135,4 @@ export class StudentComponent implements OnInit, OnDestroy {
   }
 
 
-  
 }
