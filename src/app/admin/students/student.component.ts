@@ -1,4 +1,3 @@
-
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,7 +10,7 @@ import { Student } from 'src/app/model/student.model';
 import { StudentSimple } from 'src/app/model/studentSimple.model';
 import { StudentDialogComponent } from './student-dialog/student-dialog.component';
 import { of } from 'rxjs';
-import {ConfirmDialogComponent} from "../payment/confirm-dialog/confirm-dialog.component";
+import { ConfirmDialogComponent } from '../payment/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-student',
@@ -93,19 +92,8 @@ export class StudentComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.action === 'confirm') {
-        if (result.student.id) {
-          // Actualizar el estudiante en el dataSource
-          const index = this.dataSource.data.findIndex(s => s.id === result.student.id);
-          if (index !== -1) {
-            this.dataSource.data[index] = result.student;
-            this.dataSource._updateChangeSubscription(); // Necesario para refrescar los datos
-          }
-        } else {
-          // Agregar nuevo estudiante al dataSource
-          this.dataSource.data.push(result.student);
-          this.dataSource._updateChangeSubscription(); // Refrescar los datos
-        }
+      if (result) {
+        this.loadStudents(); // Volver a cargar la lista de estudiantes
       }
     });
   }
@@ -124,6 +112,7 @@ export class StudentComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   private performDeletion(id: number): void {
     this.studentService.deleteStudent(id).subscribe({
       next: () => {
@@ -133,6 +122,4 @@ export class StudentComponent implements OnInit, OnDestroy {
       error: () => this.snackBar.open('Error al eliminar el estudiante', 'ERROR', { duration: 3000 })
     });
   }
-
-
 }
