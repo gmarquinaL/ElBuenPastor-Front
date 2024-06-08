@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { StudentService } from 'src/app/services/student.service';
 import { GuardianService } from 'src/app/services/guardian.service';
@@ -20,6 +20,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
   guardians: Guardian[] = [];
   students: StudentSimple[] = [];
   filteredStudents: Observable<StudentSimple[]>[] = [];
+  filteredGuardians: Observable<Guardian[]>; // For real-time guardian search
   subscriptions = new Subscription();
   action: string;
 
@@ -38,6 +39,10 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadGuardians();
     this.loadSiblings();
+    this.filteredGuardians = this.studentForm.get('guardianName')!.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterGuardians(value))
+    );
   }
 
   ngOnDestroy(): void {
@@ -70,7 +75,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
 
   addSibling(sibling?: Student): void {
     const siblingFormGroup = this.fb.group({
-      id: [sibling?.id], // ID no requerido aquí, se establecerá en base a la selección del nombre
+      id: [sibling?.id],
       fullName: ['', Validators.required]
     });
     this.siblings.push(siblingFormGroup);
@@ -100,13 +105,19 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
 
   removeSibling(index: number): void {
     this.siblings.removeAt(index);
-    this.filteredStudents.splice(index, 1); // Remove the corresponding filter
+    this.filteredStudents.splice(index, 1);
   }
 
   loadGuardians(): void {
     this.subscriptions.add(
       this.guardianService.getAllGuardians().subscribe({
-        next: (response) => this.guardians = response.data,
+        next: (response) => {
+          this.guardians = response.data;
+          this.filteredGuardians = this.studentForm.get('guardianName')!.valueChanges.pipe(
+            startWith(''),
+            map(value => this._filterGuardians(value))
+          );
+        },
         error: () => this.snackBar.open('Error al cargar guardianes', 'ERROR', { duration: 3000 })
       })
     );
@@ -118,6 +129,13 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.students = response.data;
           this.siblings.controls.forEach((control, index) => {
+            const siblingId = control.get('id')?.value;
+            if (siblingId) {
+              const sibling = this.students.find(student => student.id === siblingId);
+              if (sibling) {
+                control.get('fullName')?.setValue(sibling.fullName);
+              }
+            }
             this.filteredStudents[index] = this.createFilterForSibling(control.get('fullName') as FormControl, control as FormGroup);
           });
         },
@@ -126,17 +144,26 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
     );
   }
 
+  private _filterGuardians(value: string): Guardian[] {
+    const filterValue = value.toLowerCase();
+    return this.guardians.filter(guardian => guardian.fullName.toLowerCase().includes(filterValue));
+  }
+
   onSave(): void {
     if (this.studentForm.valid) {
       const formData = this.studentForm.value;
+      const guardian = this.guardians.find(g => g.fullName === formData.guardianName);
       const studentData: Student = {
         ...formData,
-        guardian: {
-          id: formData.guardianId,
+        guardian: guardian ? {
+          id: guardian.id,
+          fullName: guardian.fullName,
+          livesWithStudent: guardian.livesWithStudent
+        } : {
           fullName: formData.guardianName,
           livesWithStudent: formData.guardianLivesWithStudent
         },
-        siblings: this.siblings.value.filter(s => s.id) // Filtra hermanos sin ID
+        siblings: this.siblings.value.filter(s => s.id)
       };
 
       const operation = studentData.id ?

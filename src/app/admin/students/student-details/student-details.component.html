@@ -1,64 +1,70 @@
-<h2 mat-dialog-title>{{ action === 'Actualizar' ? 'Actualizar' : 'Agregar' }} Estudiante</h2>
-<mat-dialog-content>
-  <form [formGroup]="studentForm" class="form-container">
-    <!-- Datos del Estudiante -->
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Nombre Completo</mat-label>
-      <input matInput formControlName="fullName" required />
-      <mat-error *ngIf="studentForm.get('fullName').invalid">Este campo es obligatorio.</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Nivel</mat-label>
-      <input matInput formControlName="level" required />
-      <mat-error *ngIf="studentForm.get('level').invalid">Este campo es obligatorio.</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Sección</mat-label>
-      <input matInput formControlName="section" required />
-      <mat-error *ngIf="studentForm.get('section').invalid">Este campo es obligatorio.</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Grado</mat-label>
-      <input matInput formControlName="grade" required />
-      <mat-error *ngIf="studentForm.get('grade').invalid">Este campo es obligatorio.</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Género</mat-label>
-      <mat-select formControlName="gender">
-        <mat-option value="Masculino">Masculino</mat-option>
-        <mat-option value="Femenino">Femenino</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-checkbox formControlName="current">Estudiante Activo</mat-checkbox>
-
-    <!-- Datos del Guardián -->
-    <div formGroupName="guardian">
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Nombre del Guardián</mat-label>
-        <input matInput formControlName="guardianName" required />
-        <mat-error *ngIf="studentForm.get('guardian.guardianName').invalid">Este campo es obligatorio.</mat-error>
-      </mat-form-field>
-      <mat-checkbox formControlName="guardianLivesWithStudent">El guardián vive con el estudiante</mat-checkbox>
-    </div>
-
-    <!-- Gestión de Hermanos -->
-    <div formArrayName="siblings">
-      <div *ngFor="let sibling of siblings.controls; let i = index" [formGroupName]="i">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Hermano {{ i + 1 }}</mat-label>
-          <input matInput formControlName="fullName" required />
-          <button mat-icon-button matSuffix aria-label="Eliminar hermano" (click)="removeSibling(i)">
-            <mat-icon>remove_circle_outline</mat-icon>
-          </button>
-        </mat-form-field>
+<mat-card class="cardWithShadow">
+  <mat-card-content class="p-24">
+    <div class="row m-b-24">
+      <div class="col-sm-4 d-flex align-items-center">
+        <h4 class="mat-subtitle-2 f-s-18 f-w-600">Estudiante #{{ student.id }}</h4>
       </div>
-      <button mat-button (click)="addSibling()">Agregar Hermano</button>
+      <div class="col-sm-8 text-right">
+        <button mat-stroked-button color="primary" (click)="onNoClick()">Volver</button>
+      </div>
     </div>
-  </form>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button (click)="cancel()">Cancelar</button>
-  <button mat-button color="primary" (click)="saveStudent()" [disabled]="!studentForm.valid">
-    {{ action === 'Actualizar' ? 'Actualizar' : 'Agregar' }}
-  </button>
-</mat-dialog-actions>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Nombre Completo:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.fullName }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Nivel:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.level }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Sección:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.section }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Grado:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.grade }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Género:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.gender }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Estado Actual:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.current ? 'Activo' : 'Inactivo' }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-6">
+        <span class="f-w-600 f-s-15 mat-body-1">Guardián:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.guardian?.fullName || 'Sin guardián' }}</h6>
+      </div>
+      <div class="col-sm-6 text-right">
+        <span class="f-w-600 f-s-15 mat-body-1">Vive con el estudiante:</span>
+        <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">{{ student.guardian?.livesWithStudent ? 'Sí' : 'No' }}</h6>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row p-y-24">
+      <div class="col-sm-12">
+        <span class="f-w-600 f-s-15 mat-body-1">Hermanos:</span>
+        <ng-container *ngIf="student.siblings?.length; else noSiblings">
+          <ul>
+            <li *ngFor="let sibling of student.siblings">{{ sibling.fullName }}</li>
+          </ul>
+        </ng-container>
+        <ng-template #noSiblings>
+          <h6 class="m-t-5 m-b-0 f-w-500 f-s-14 mat-body-2">Sin hermanos</h6>
+        </ng-template>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

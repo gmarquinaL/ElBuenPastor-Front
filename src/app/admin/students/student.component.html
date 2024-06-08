@@ -9,7 +9,7 @@
         </mat-form-field>
       </div>
       <div class="col-sm-8 text-end d-flex align-items-center justify-content-end">
-        <button mat-flat-button (click)="openStudentDialog('Registrar')" color="primary">
+        <button mat-flat-button (click)="openStudentDialog('Registrar')" color="primary" class="highlight-button">
           Registrar Estudiante
         </button>
       </div>
@@ -21,7 +21,6 @@
   <div class="col-sm-12 col-md-6 col-lg-4" *ngFor="let student of dataSource.data">
     <mat-card class="cardWithShadow">
       <mat-card-content class="text-center student-card-content">
-        <!-- Imágenes basadas en el género -->
         <img *ngIf="student.gender?.toLowerCase() === 'masculino'"
              src="assets/images/profile/user6.jpg"
              class="rounded-circle border profile-img"
@@ -30,31 +29,29 @@
              src="assets/images/profile/user3.jpg"
              class="rounded-circle border profile-img"
              width="100">
-
         <h4 mat-card-title class="card-title mt-16 mb-0">
           {{ student.fullName }}
         </h4>
         <br>
         <span class="fs-12">
-         
           <span *ngIf="student.siblingName !== 'No tiene hermanos'; else noSibling" class="bg-light-success text-success border-success rounded fw-600 px-6 py-4 fs-12">
-            Hermano: {{ student.siblingName }}
+            {{ student.siblingName }}
           </span>
           <ng-template #noSibling>
             <span class="bg-light-danger text-danger border-danger rounded fw-600 px-6 py-4 fs-12">Sin hermanos</span>
           </ng-template>
         </span>
         <br> <br>
-         <span *ngIf="student.guardianName !== 'No tiene apoderado'; else noGuardian" class="guardian rounded fw-600 px-6 py-4 fs-12">
-            Guardián: {{ student.guardianName }}
-          </span>
-          <ng-template #noGuardian>
-            <span class="text-danger">Sin guardián</span>
-          </ng-template>
+        <span *ngIf="student.guardianName !== 'No tiene apoderado'; else noGuardian" class="guardian rounded fw-600 px-6 py-4 fs-12">
+          Guardián: {{ student.guardianName }}
+        </span>
+        <ng-template #noGuardian>
+          <span class="text-danger">Sin guardián</span>
+        </ng-template>
         <div class="button-group mt-20">
           <button mat-flat-button type="button" class="mr-8" color="primary" (click)="openStudentDialog('Actualizar', student)">Editar</button>
           <button mat-flat-button type="button" color="warn" (click)="deleteStudent(student.id)">Eliminar</button>
-          <button mat-flat-button type="button" color="accent" (click)="openStudentDialog('Detalles', student)">Ver</button>
+          <button mat-flat-button type="button" color="accent" (click)="openStudentDetailsDialog(student)">Ver</button>
         </div>
       </mat-card-content>
       <mat-divider></mat-divider>

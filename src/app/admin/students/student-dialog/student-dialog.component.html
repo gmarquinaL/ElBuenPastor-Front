@@ -11,7 +11,11 @@
 
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Nivel</mat-label>
-      <input matInput formControlName="level" placeholder="Ingrese el nivel educativo">
+      <mat-select formControlName="level">
+        <mat-option value="inicial">Inicial</mat-option>
+        <mat-option value="primaria">Primaria</mat-option>
+        <mat-option value="secundaria">Secundaria</mat-option>
+      </mat-select>
       <mat-error *ngIf="studentForm.get('level').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
 
@@ -23,7 +27,17 @@
 
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Grado</mat-label>
-      <input matInput formControlName="grade" placeholder="Ingrese el grado">
+      <mat-select formControlName="grade">
+        <mat-option value="3 años">3 años</mat-option>
+        <mat-option value="4 años">4 años</mat-option>
+        <mat-option value="5 años">5 años</mat-option>
+        <mat-option value="1er grado">1er grado</mat-option>
+        <mat-option value="2do grado">2do grado</mat-option>
+        <mat-option value="3er grado">3er grado</mat-option>
+        <mat-option value="4to grado">4to grado</mat-option>
+        <mat-option value="5to grado">5to grado</mat-option>
+        <mat-option value="6to grado">6to grado</mat-option>
+      </mat-select>
       <mat-error *ngIf="studentForm.get('grade').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
 
@@ -54,13 +68,18 @@
           </button>
         </mat-form-field>
       </div>
-      <button mat-button (click)="addSibling()">Agregar Hermano</button>
+      <button mat-button class="highlight-button" (click)="addSibling()">Agregar Hermano</button>
     </div>
-
+    <br>
     <!-- Datos del Guardián -->
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Nombre del Guardián</mat-label>
-      <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián">
+      <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián" [matAutocomplete]="guardianAuto">
+      <mat-autocomplete #guardianAuto="matAutocomplete">
+        <mat-option *ngFor="let guardian of filteredGuardians | async" [value]="guardian.fullName">
+          {{ guardian.fullName }}
+        </mat-option>
+      </mat-autocomplete>
       <mat-error *ngIf="studentForm.get('guardianName').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
 
@@ -70,5 +89,5 @@
 
 <mat-dialog-actions>
   <button mat-button (click)="onClose()">Cancelar</button>
-  <button mat-button color="primary" (click)="onSave()" [disabled]="!studentForm.valid">{{ action === 'Agregar' ? 'Registrar' : 'Actualizar' }}</button>
+  <button mat-button class="highlight-button" color="primary" (click)="onSave()" [disabled]="!studentForm.valid">{{ action === 'Agregar' ? 'Registrar' : 'Actualizar' }}</button>
 </mat-dialog-actions>

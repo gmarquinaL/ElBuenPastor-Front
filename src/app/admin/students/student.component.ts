@@ -3,14 +3,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { StudentService } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { StudentSimple } from 'src/app/model/studentSimple.model';
 import { StudentDialogComponent } from './student-dialog/student-dialog.component';
-import { of } from 'rxjs';
 import { ConfirmDialogComponent } from '../payment/confirm-dialog/confirm-dialog.component';
+import { StudentDetailsComponent } from './student-details/student-details.component';
 
 @Component({
   selector: 'app-student',
@@ -28,7 +28,12 @@ export class StudentComponent implements OnInit, OnDestroy {
     private studentService: StudentService,
     private snackBar: MatSnackBar,
     public dialog: MatDialog
-  ) { }
+  ) {
+    // Set custom filter predicate
+    this.dataSource.filterPredicate = (data: StudentSimple, filter: string) => {
+      return data.fullName.toLowerCase().includes(filter);
+    };
+  }
 
   ngOnInit(): void {
     this.loadStudents();
@@ -63,8 +68,8 @@ export class StudentComponent implements OnInit, OnDestroy {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.dataSource.filter = filterValue;
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -120,6 +125,25 @@ export class StudentComponent implements OnInit, OnDestroy {
         this.snackBar.open('Estudiante eliminado con éxito', 'OK', { duration: 3000 });
       },
       error: () => this.snackBar.open('Error al eliminar el estudiante', 'ERROR', { duration: 3000 })
+    });
+  }
+
+  openStudentDetailsDialog(studentSimple: StudentSimple): void {
+    this.studentService.getStudentDetails(studentSimple.id).subscribe({
+      next: (response) => {
+        const studentData = response.data;
+        const dialogRef = this.dialog.open(StudentDetailsComponent, {
+          width: '650px',
+          data: { student: studentData }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.loadStudents(); // Reload the student list if any changes were made
+          }
+        });
+      },
+      error: () => this.snackBar.open('Error al cargar los detalles del estudiante', 'ERROR', { duration: 3000 })
     });
   }
 }

@@ -24,14 +24,19 @@
         color: rgb(195, 8, 8); 
     }
     .bg-light-success {
-    background-color: #dff0d8; 
+      background-color: #dff0d8; 
+      padding-left: 24px; 
+      padding-right: 24px;
+      font-weight: 600; 
+      padding-top: 3px; 
+      padding-bottom: 3px;
     }
 
-.bg-light-danger{
-    background-color: rgb(254, 223, 223);
-    padding-left: 24px; 
-    padding-right: 24px;
-    font-weight: 600; 
-    padding-top: 3px; 
-    padding-bottom: 3px;
-}
+    .bg-light-danger{
+        background-color: rgb(254, 223, 223);
+        padding-left: 24px; 
+        padding-right: 24px;
+        font-weight: 600; 
+        padding-top: 3px; 
+        padding-bottom: 3px;
+    }
