@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -21,18 +21,22 @@ export class StudentComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['fullName', 'gender', 'actions'];
   dataSource = new MatTableDataSource<StudentSimple & { gender?: string }>();
   private subscriptions = new Subscription();
+  filterValues = {
+    fullName: '',
+    level: '',
+    grade: ''
+  };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private studentService: StudentService,
     private snackBar: MatSnackBar,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private changeDetectorRefs: ChangeDetectorRef
   ) {
-    // Set custom filter predicate
-    this.dataSource.filterPredicate = (data: StudentSimple, filter: string) => {
-      return data.fullName.toLowerCase().includes(filter);
-    };
+    // Initialize filter predicate
+    this.dataSource.filterPredicate = this.createFilter();
   }
 
   ngOnInit(): void {
@@ -41,6 +45,32 @@ export class StudentComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  createFilter(): (data: any, filter: string) => boolean {
+    return (data, filter): boolean => {
+      const searchTerms = JSON.parse(filter);
+      return data.fullName.toLowerCase().includes(searchTerms.fullName)
+        && (searchTerms.level ? data.level === searchTerms.level : true)
+        && (searchTerms.grade ? data.grade === searchTerms.grade : true);
+    };
+  }
+
+  applyFilter(): void {
+    this.dataSource.filter = JSON.stringify(this.filterValues);
+    this.changeDetectorRefs.detectChanges();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  clearFilters(): void {
+    this.filterValues = {
+      fullName: '',
+      level: '',
+      grade: ''
+    };
+    this.applyFilter();
   }
 
   loadStudents(): void {
@@ -57,23 +87,14 @@ export class StudentComponent implements OnInit, OnDestroy {
   loadAdditionalStudentDetails(): void {
     const detailsRequests = this.dataSource.data.map(studentSimple =>
       this.studentService.getStudentDetails(studentSimple.id).pipe(
-        map(response => ({ ...studentSimple, gender: response.data.gender })),
-        catchError(() => of({ ...studentSimple, gender: 'Desconocido' }))
+        map(response => ({ ...studentSimple, gender: response.data.gender, level: response.data.level, grade: response.data.grade })),
+        catchError(() => of({ ...studentSimple, gender: 'Desconocido', level: 'Desconocido', grade: 'Desconocido' }))
       )
     );
 
     this.subscriptions.add(forkJoin(detailsRequests).subscribe(completed => {
       this.dataSource.data = completed;
     }));
-  }
-
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.dataSource.filter = filterValue;
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
   }
 
   openStudentDialog(action: string, studentSimple?: StudentSimple): void {

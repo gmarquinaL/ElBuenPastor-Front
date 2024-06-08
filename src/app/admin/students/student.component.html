@@ -1,14 +1,43 @@
 <mat-card class="cardWithShadow">
   <mat-card-content>
-    <div class="row justify-content-between">
-      <div class="col-sm-4">
+    <div class="row justify-content-between align-items-center">
+      <div class="col-md-3">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Buscar estudiante</mat-label>
-          <input matInput placeholder="Nombre" (keyup)="applyFilter($event)">
+          <input matInput placeholder="Nombre" (input)="applyFilter()" [(ngModel)]="filterValues.fullName">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
-      <div class="col-sm-8 text-end d-flex align-items-center justify-content-end">
+      <div class="col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Nivel</mat-label>
+          <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.level">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="inicial">Inicial</mat-option>
+            <mat-option value="primaria">Primaria</mat-option>
+            <mat-option value="secundaria">Secundaria</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Grado</mat-label>
+          <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.grade">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="3 años">3 años</mat-option>
+            <mat-option value="4 años">4 años</mat-option>
+            <mat-option value="5 años">5 años</mat-option>
+            <mat-option value="1er grado">1er grado</mat-option>
+            <mat-option value="2do grado">2do grado</mat-option>
+            <mat-option value="3er grado">3er grado</mat-option>
+            <mat-option value="4to grado">4to grado</mat-option>
+            <mat-option value="5to grado">5to grado</mat-option>
+            <mat-option value="6to grado">6to grado</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-4 text-end d-flex align-items-center justify-content-between">
+        <button mat-button class="clear-filters-button" (click)="clearFilters()">Limpiar Filtros</button>
         <button mat-flat-button (click)="openStudentDialog('Registrar')" color="primary" class="highlight-button">
           Registrar Estudiante
         </button>
@@ -18,7 +47,7 @@
 </mat-card>
 
 <div class="row">
-  <div class="col-sm-12 col-md-6 col-lg-4" *ngFor="let student of dataSource.data">
+  <div class="col-sm-12 col-md-6 col-lg-4" *ngFor="let student of dataSource.filteredData">
     <mat-card class="cardWithShadow">
       <mat-card-content class="text-center student-card-content">
         <img *ngIf="student.gender?.toLowerCase() === 'masculino'"
