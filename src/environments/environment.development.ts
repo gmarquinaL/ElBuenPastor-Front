@@ -1,5 +1,5 @@
 export const environment = {
-    HOST: 'https://elbuenpastor-back-production.up.railway.app/api',
+    HOST: 'http://localhost:8080/api',
     REINTENTOS: 2,
     TOKEN_NAME: 'token',
 };
