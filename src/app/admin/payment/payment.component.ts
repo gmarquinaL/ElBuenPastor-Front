@@ -11,6 +11,7 @@ import Swal from 'sweetalert2';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 import { exportPaymentsToExcel } from 'src/assets/excel-export.js';
 import { logoBase64 } from '../payment/logoBase64';
 
@@ -20,11 +21,11 @@ import { logoBase64 } from '../payment/logoBase64';
   styleUrls: ['./payment.component.scss']
 })
 export class PaymentComponent implements OnInit, AfterViewInit {
-  payments: Payment[] = [];
   dataSource = new MatTableDataSource<Payment>();
   displayedColumns: string[] = ['name', 'concept', 'amount', 'paymentDate', 'dueDate', 'actions'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   paymentDateFrom: Date | null = null;
   paymentDateTo: Date | null = null;
@@ -38,24 +39,67 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    this.paymentService.getAll().subscribe(response => {
-      this.payments = response.data;
-    });
     this.loadPayments();
+    this.restoreState();
   }
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.persistState();
   }
 
   loadPayments(): void {
     this.paymentService.getAll().subscribe({
       next: (response) => {
         this.dataSource.data = response.data;
-        this.dataSource.paginator = this.paginator;
+        this.cdRef.detectChanges();
       },
       error: () => this.snackBar.open('Error al cargar los pagos', 'ERROR', { duration: 3000 })
     });
+  }
+
+  persistState() {
+    this.paginator.page.subscribe(() => {
+      localStorage.setItem('paginator', JSON.stringify({
+        pageIndex: this.paginator.pageIndex,
+        pageSize: this.paginator.pageSize
+      }));
+    });
+
+    this.sort.sortChange.subscribe(() => {
+      localStorage.setItem('sort', JSON.stringify({
+        active: this.sort.active,
+        direction: this.sort.direction
+      }));
+    });
+  }
+
+  restoreState() {
+    const paginatorState = JSON.parse(localStorage.getItem('paginator') || '{}');
+    const sortState = JSON.parse(localStorage.getItem('sort') || '{}');
+
+    setTimeout(() => {
+      if (this.paginator) {
+        this.paginator.pageIndex = paginatorState.pageIndex || 0;
+        this.paginator.pageSize = paginatorState.pageSize || 10;
+        this.paginator._changePageSize(this.paginator.pageSize);
+      }
+      if (this.sort) {
+        this.sort.active = sortState.active || 'name';
+        this.sort.direction = sortState.direction || 'asc';
+        this.sort.sortChange.emit();
+      }
+    });
+
+    const filterState = localStorage.getItem('filters');
+    if (filterState) {
+      const filters = JSON.parse(filterState);
+      this.textFilter = filters.text;
+      this.paymentDateFrom = filters.fromDate ? new Date(filters.fromDate) : null;
+      this.paymentDateTo = filters.toDate ? new Date(filters.toDate) : null;
+      this.applyFilters();
+    }
   }
 
   applyTextFilter(event: Event): void {
@@ -66,7 +110,16 @@ export class PaymentComponent implements OnInit, AfterViewInit {
 
   applyFilters(): void {
     this.dataSource.filterPredicate = this.createFilter();
-    this.dataSource.filter = JSON.stringify({ text: this.textFilter, fromDate: this.paymentDateFrom, toDate: this.paymentDateTo });
+    this.dataSource.filter = JSON.stringify({
+      text: this.textFilter,
+      fromDate: this.paymentDateFrom,
+      toDate: this.paymentDateTo
+    });
+    localStorage.setItem('filters', JSON.stringify({
+      text: this.textFilter,
+      fromDate: this.paymentDateFrom,
+      toDate: this.paymentDateTo
+    }));
   }
 
   createFilter(): (data: Payment, filter: string) => boolean {
@@ -82,14 +135,15 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     };
     return filterFunction;
   }
+
   clearFilters(): void {
     this.textFilter = '';
     this.paymentDateFrom = null;
     this.paymentDateTo = null;
     this.dataSource.filter = '';
+    localStorage.removeItem('filters');
   }
 
-  
   openDialog(action: string, obj: any = {}): void {
     const dialogRef = this.dialog.open(DialogFormPaymentComponent, {
       data: { ...obj, action: action },
@@ -101,9 +155,9 @@ export class PaymentComponent implements OnInit, AfterViewInit {
         let index = this.dataSource.data.findIndex(p => p.id === obj.id);
         if (index !== -1) {
           this.dataSource.data[index] = { ...this.dataSource.data[index], ...result.data };
-          this.dataSource._updateChangeSubscription(); // Refresh the data source to update the table
+          this.dataSource._updateChangeSubscription();
         }
-        this.showSuccessMessage('Pago actualizado correctamente');
+        this.showSuccessMessage('<span style="font-size: 22px;">Pago actualizado correctamente</span>');
       }
     });
   }
@@ -113,10 +167,19 @@ export class PaymentComponent implements OnInit, AfterViewInit {
       disableClose: true,
       width: '400px'
     });
-
+  
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.event === 'Upload') {
-    this.loadPayments();
+        this.paymentService.getAll().subscribe({
+          next: (response) => {
+            this.dataSource.data = response.data;
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+            this.cdRef.detectChanges();
+            this.showSuccessMessage('Pagos subidos y actualizados correctamente');
+          },
+          error: () => this.showErrorMessage('Error al recargar los pagos')
+        });
       }
     });
   }
@@ -144,13 +207,11 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     this.openDialog('Actualizar', payment);
   }
 
-  
   exportToExcel(): void {
     const filteredData = this.dataSource.filteredData.length ? this.dataSource.filteredData : this.dataSource.data;
     exportPaymentsToExcel(filteredData, logoBase64);
   }
 
-  
   viewPaymentDetails(payment: Payment): void {
     this.dialog.open(PaymentDetailsComponent, {
       width: '400px',
