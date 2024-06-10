@@ -18,8 +18,9 @@ export class DialogUploadFileComponent {
     private snackBar: MatSnackBar
   ) { }
 
-  onFileSelected(event: any): void {
-    this.file = event.target.files[0];
+  onFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.file = target.files ? target.files[0] : null;
     const allowedExtensions = ['xlsx', 'xls'];
     const fileExtension = this.file?.name.split('.').pop()?.toLowerCase();
 
@@ -38,36 +39,18 @@ export class DialogUploadFileComponent {
     if (this.file) {
       this.paymentService.uploadFile(this.file).subscribe({
         next: (response) => {
-          const newPaymentsCount = response.additionalInfo?.newPaymentsCount || 0;
-          const existingPaymentsCount = response.additionalInfo?.existingPaymentsCount || 0;
-          let message = `<span style="font-size: 24px;">Se agregaron ${newPaymentsCount} pagos nuevos.</span>`;
-          if (existingPaymentsCount > 0) {
-            message += `<br><span style="font-size: 18px;">${existingPaymentsCount} pagos ya existían y no se añadieron.</span>`;
-          }
           Swal.fire({
+            html: `<span style="font-size: 22px;">${response.message}</span>`, 
             icon: 'success',
-            title: message,
             showConfirmButton: true
           }).then(() => {
-            this.dialogRef.close({ event: 'Upload', newPaymentsCount, existingPaymentsCount });
+            this.dialogRef.close(response); 
           });
         },
         error: (error) => {
           let errorMessage = 'Error al cargar el archivo. Por favor, verifique que es el archivo correcto.';
           if (error.status === 400) {
-            switch (error.error?.status) {
-              case -4:
-                errorMessage = 'El archivo subido está vacío.';
-                break;
-              case -3:
-                errorMessage = 'El archivo subido no es un archivo de pagos válido.';
-                break;
-              case -2:
-                errorMessage = 'El archivo subido no contiene registros de pagos válidos.';
-                break;
-              default:
-                errorMessage = 'Error al cargar el archivo. Por favor, verifique que es el archivo correcto.';
-            }
+            errorMessage = error.error.message || errorMessage;
           }
           Swal.fire({
             icon: 'error',
