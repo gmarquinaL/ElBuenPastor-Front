@@ -27,7 +27,6 @@ const TABLET_VIEW = 'screen and (min-width: 769px) and (max-width: 1024px)';
 const MONITOR_VIEW = 'screen and (min-width: 1100px)';
 const BELOWMONITOR = 'screen and (max-width: 1099px)';
 
-// for mobile app sidebar
 interface apps {
   id: number;
   img: string;
@@ -65,13 +64,13 @@ interface quicklinks {
   encapsulation: ViewEncapsulation.None,
 })
 export class FullComponent implements OnInit {
-  navItems : any;
+  navItems: any;
 
-  @ViewChild('leftsidenav')
-  public sidenav: MatSidenav;
+  @ViewChild('leftSidenavStart') public sidenav!: MatSidenav;
+  @ViewChild('customizerRight') public customizerRight!: MatSidenav;
   resView = false;
   @ViewChild('content', { static: true }) content!: MatSidenavContent;
-  //get options from service
+
   options = this.settings.getOptions();
   private layoutChangesSubscription = Subscription.EMPTY;
   private isMobileScreen = false;
@@ -202,7 +201,6 @@ export class FullComponent implements OnInit {
     this.layoutChangesSubscription = this.breakpointObserver
       .observe([MOBILE_VIEW, TABLET_VIEW, MONITOR_VIEW, BELOWMONITOR])
       .subscribe((state) => {
-        // SidenavOpened must be reset true when layout changes
         this.options.sidenavOpened = true;
         this.isMobileScreen = state.breakpoints[MOBILE_VIEW];
         if (this.options.sidenavCollapsed == false) {
@@ -212,10 +210,8 @@ export class FullComponent implements OnInit {
         this.resView = state.breakpoints[BELOWMONITOR];
       });
 
-    // Initialize project theme with options
     this.receiveOptions(this.options);
 
-    // This is for scroll to top
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((e) => {
