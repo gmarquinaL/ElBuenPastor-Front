@@ -11,6 +11,8 @@ import { StudentSimple } from 'src/app/model/studentSimple.model';
 import { StudentDialogComponent } from './student-dialog/student-dialog.component';
 import { ConfirmDialogComponent } from '../payment/confirm-dialog/confirm-dialog.component';
 import { StudentDetailsComponent } from './student-details/student-details.component';
+import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-student',
@@ -82,7 +84,7 @@ export class StudentComponent implements OnInit, OnDestroy {
         this.dataSource.paginator = this.paginator;
         this.loadAdditionalStudentDetails();
       },
-      error: () => this.snackBar.open('Error al cargar los estudiantes', 'ERROR', { duration: 3000 })
+      error: () => this.showErrorMessage('Error al cargar los estudiantes')
     }));
   }
 
@@ -117,7 +119,7 @@ export class StudentComponent implements OnInit, OnDestroy {
           const studentData = response.data;
           this.openDialog(action, studentData);
         },
-        error: () => this.snackBar.open('Error al cargar los detalles del estudiante', 'ERROR', { duration: 3000 })
+        error: () => this.showErrorMessage('Error al cargar los detalles del estudiante')
       });
     } else {
       this.openDialog(action);
@@ -156,9 +158,9 @@ export class StudentComponent implements OnInit, OnDestroy {
     this.studentService.deleteStudent(id).subscribe({
       next: () => {
         this.dataSource.data = this.dataSource.data.filter(student => student.id !== id);
-        this.snackBar.open('Estudiante eliminado con éxito', 'OK', { duration: 3000 });
+        this.showSuccessMessage('Estudiante eliminado con éxito');
       },
-      error: () => this.snackBar.open('Error al eliminar el estudiante', 'ERROR', { duration: 3000 })
+      error: () => this.showErrorMessage('Error al eliminar el estudiante')
     });
   }
 
@@ -177,7 +179,23 @@ export class StudentComponent implements OnInit, OnDestroy {
           }
         });
       },
-      error: () => this.snackBar.open('Error al cargar los detalles del estudiante', 'ERROR', { duration: 3000 })
+      error: () => this.showErrorMessage('Error al cargar los detalles del estudiante')
+    });
+  }
+
+  showSuccessMessage(message: string): void {
+    Swal.fire({
+      icon: 'success',
+      html: `<span style="font-size: 1.3em;">${message}</span>`,
+      showConfirmButton: true
+    });
+  }
+
+  showErrorMessage(message: string): void {
+    Swal.fire({
+      icon: 'error',
+      html: `<span style="font-size: 1.3em;">${message}</span>`,
+      showConfirmButton: true
     });
   }
 }

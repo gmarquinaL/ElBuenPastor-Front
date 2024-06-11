@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription, Observable, of } from 'rxjs'; 
 import { map, startWith } from 'rxjs/operators';
 import { StudentService } from 'src/app/services/student.service';
@@ -9,6 +8,7 @@ import { GuardianService } from 'src/app/services/guardian.service';
 import { Student } from 'src/app/model/student.model';
 import { Guardian } from 'src/app/model/guardian.model';
 import { StudentSimple } from 'src/app/model/studentSimple.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-student-dialog',
@@ -38,7 +38,6 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private studentService: StudentService,
     private guardianService: GuardianService,
-    private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<StudentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
@@ -151,7 +150,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
             map(value => this._filterGuardians(value))
           );
         },
-        error: () => this.snackBar.open('Error al cargar guardianes', 'ERROR', { duration: 3000 })
+        error: () => this.showErrorMessage('Error al cargar guardianes')
       })
     );
   }
@@ -172,7 +171,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
             this.filteredStudents[index] = this.createFilterForSibling(control.get('fullName') as FormControl, control as FormGroup);
           });
         },
-        error: () => this.snackBar.open('Error al cargar hermanos', 'ERROR', { duration: 3000 })
+        error: () => this.showErrorMessage('Error al cargar hermanos')
       })
     );
   }
@@ -193,7 +192,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
             next: (response) => {
                 const guardian = response.data;
                 this.createdGuardianId = guardian.id;
-                this.snackBar.open('Nuevo guardián creado con éxito. Ahora puede asignarlo al estudiante.', 'OK', { duration: 3000 });
+                this.showSuccessMessage('Nuevo guardián creado con éxito. Ahora puede asignarlo al estudiante.');
                 this.selectedGuardianOption = 'existing';
                 this.studentForm.patchValue({
                     guardianId: guardian.id, 
@@ -202,11 +201,11 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
                 this.loadGuardians();
             },
             error: (error) => {
-                this.snackBar.open('Error al crear guardián: ' + error.message, 'ERROR', { duration: 3000 });
+                this.showErrorMessage('Error al crear guardián: ' + error.message);
             }
         });
     } else {
-        this.snackBar.open('Por favor, ingrese los datos del nuevo guardián', 'ERROR', { duration: 3000 });
+        this.showErrorMessage('Por favor, ingrese los datos del nuevo guardián');
     }
 }
 
@@ -234,17 +233,17 @@ onSave(): void {
     this.subscriptions.add(
       operation.subscribe({
         next: () => {
-          this.snackBar.open(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`, 'OK', { duration: 3000 });
+          this.showSuccessMessage(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`);
           this.dialogRef.close(true);
         },
         error: (error) => {
           console.error('Error al guardar el estudiante:', error);
-          this.snackBar.open('Error al guardar el estudiante: ' + (error.error.message || 'Error desconocido'), 'ERROR', { duration: 3000 });
+          this.showErrorMessage('Error al guardar el estudiante: ' + (error.error.message || 'Error desconocido'));
         }
       })
     );
   } else {
-    this.snackBar.open('Por favor, complete el formulario correctamente', 'ERROR', { duration: 3000 });
+    this.showErrorMessage('Por favor, complete el formulario correctamente');
   }
 }
 
@@ -258,5 +257,21 @@ onSave(): void {
 
   onClose(): void {
     this.dialogRef.close();
+  }
+
+  showSuccessMessage(message: string): void {
+    Swal.fire({
+      icon: 'success',
+      html: `<span style="font-size: 1.3em;">${message}</span>`,
+      showConfirmButton: true
+    });
+  }
+
+  showErrorMessage(message: string): void {
+    Swal.fire({
+      icon: 'error',
+      html: `<span style="font-size: 1.3em;">${message}</span>`,
+      showConfirmButton: true
+    });
   }
 }
