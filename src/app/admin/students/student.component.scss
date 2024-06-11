@@ -48,4 +48,53 @@
     }
     
 
+    .cardWithShadow {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    
+    .filter-button {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .filter-button.active {
+      background-color: #007bff;
+      color: #fff;
+    }
+    
+    .export-button {
+      background-color: #54adba;
+      color: #fff;
+    }
+    
+    .student-card {
+      margin-bottom: 20px;
+    }
+    
+    .student-card-content {
+      position: relative;
+    }
+    
+    .profile-img {
+      margin-bottom: 10px;
+    }
+    
+    .card-title {
+      font-size: 1.2em;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: center;
+    }
+
+    .bg-light-success {
+      background-color: #d4edda;
+    }
+    
+    
+    .bg-light-danger {
+      background-color: #f8d7da;
+    }
     

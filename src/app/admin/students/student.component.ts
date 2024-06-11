@@ -1,5 +1,4 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -12,7 +11,15 @@ import { StudentDialogComponent } from './student-dialog/student-dialog.componen
 import { ConfirmDialogComponent } from '../payment/confirm-dialog/confirm-dialog.component';
 import { StudentDetailsComponent } from './student-details/student-details.component';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 
+interface StudentCombined extends StudentSimple {
+  gender?: string;
+  level?: string;
+  grade?: string;
+  guardian?: { fullName: string };
+  siblingName?: string;
+}
 
 @Component({
   selector: 'app-student',
@@ -21,19 +28,19 @@ import Swal from 'sweetalert2';
 })
 export class StudentComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['fullName', 'gender', 'actions'];
-  dataSource = new MatTableDataSource<StudentSimple & { gender?: string }>();
+  dataSource = new MatTableDataSource<StudentCombined>();
   private subscriptions = new Subscription();
   filterValues = {
     fullName: '',
     level: '',
-    grade: ''
+    grade: '',
+    hasSiblings: ''
   };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private studentService: StudentService,
-    private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private changeDetectorRefs: ChangeDetectorRef
   ) {
@@ -48,15 +55,16 @@ export class StudentComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  createFilter(): (data: any, filter: string) => boolean {
+  createFilter(): (data: StudentCombined, filter: string) => boolean {
     return (data, filter): boolean => {
       const searchTerms = JSON.parse(filter);
       const fullNameMatch = data.fullName.toLowerCase().includes(searchTerms.fullName.toLowerCase());
       const guardianNameMatch = data.guardian ? data.guardian.fullName.toLowerCase().includes(searchTerms.fullName.toLowerCase()) : false;
       const levelMatch = searchTerms.level ? data.level === searchTerms.level : true;
       const gradeMatch = searchTerms.grade ? data.grade === searchTerms.grade : true;
-      
-      return (fullNameMatch || guardianNameMatch) && levelMatch && gradeMatch;
+      const siblingMatch = searchTerms.hasSiblings === 'yes' ? data.siblingName !== 'No tiene hermanos' : searchTerms.hasSiblings === 'no' ? data.siblingName === 'No tiene hermanos' : true;
+
+      return (fullNameMatch || guardianNameMatch) && levelMatch && gradeMatch && siblingMatch;
     };
   }
 
@@ -72,8 +80,14 @@ export class StudentComponent implements OnInit, OnDestroy {
     this.filterValues = {
       fullName: '',
       level: '',
-      grade: ''
+      grade: '',
+      hasSiblings: ''
     };
+    this.applyFilter();
+  }
+
+  filterSiblings(hasSiblings: string): void {
+    this.filterValues.hasSiblings = hasSiblings;
     this.applyFilter();
   }
 
@@ -96,13 +110,15 @@ export class StudentComponent implements OnInit, OnDestroy {
           gender: response.data.gender,
           level: response.data.level,
           grade: response.data.grade,
-          guardian: response.data.guardian
+          guardian: response.data.guardian,
+          siblingName: response.data.siblings.length ? response.data.siblings.map(s => s.fullName).join(', ') : 'No tiene hermanos'
         })),
         catchError(() => of({
           ...studentSimple,
           gender: 'Desconocido',
           level: 'Desconocido',
-          grade: 'Desconocido'
+          grade: 'Desconocido',
+          siblingName: 'No tiene hermanos'
         }))
       )
     );
@@ -183,10 +199,44 @@ export class StudentComponent implements OnInit, OnDestroy {
     });
   }
 
+  exportToExcel(): void {
+    const groupedData = this.groupByGuardian(this.dataSource.filteredData);
+    const dataToExport: any[] = [];
+
+    Object.keys(groupedData).forEach(guardian => {
+      const students = groupedData[guardian];
+      students.forEach((student, index) => {
+        dataToExport.push({
+          'Guardián': index === 0 ? guardian : '',
+          'Nombre Completo': student.fullName,
+          'Género': student.gender,
+          'Nivel': student.level,
+          'Grado': student.grade,
+          'Hermanos': student.siblingName
+        });
+      });
+    });
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook: XLSX.WorkBook = { Sheets: { 'Estudiantes': worksheet }, SheetNames: ['Estudiantes'] };
+    XLSX.writeFile(workbook, 'Estudiantes.xlsx');
+  }
+
+  groupByGuardian(data: StudentCombined[]): { [key: string]: StudentCombined[] } {
+    return data.reduce((acc, student) => {
+      const guardianName = student.guardian?.fullName || 'Sin guardián';
+      if (!acc[guardianName]) {
+        acc[guardianName] = [];
+      }
+      acc[guardianName].push(student);
+      return acc;
+    }, {} as { [key: string]: StudentCombined[] });
+  }
+
   showSuccessMessage(message: string): void {
     Swal.fire({
       icon: 'success',
-      html: `<span style="font-size: 1.3em;">${message}</span>`,
+      title: `<span style="font-size: 1rem;">${message}</span>`,
       showConfirmButton: true
     });
   }
@@ -194,7 +244,7 @@ export class StudentComponent implements OnInit, OnDestroy {
   showErrorMessage(message: string): void {
     Swal.fire({
       icon: 'error',
-      html: `<span style="font-size: 1.3em;">${message}</span>`,
+      title: `<span style="font-size: 1rem;">${message}</span>`,
       showConfirmButton: true
     });
   }

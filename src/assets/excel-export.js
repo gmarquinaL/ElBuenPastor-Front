@@ -44,7 +44,7 @@ export async function exportPaymentsToExcel(payments, logoBase64) {
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: '005d15' }, // Verde
+      fgColor: { argb: '005d15' }, 
     };
     cell.font = {
       bold: true,
@@ -69,7 +69,7 @@ export async function exportPaymentsToExcel(payments, logoBase64) {
 
   // Centrar contenido de columnas
   worksheet.eachRow((row, rowNumber) => {
-    if (rowNumber > 6) { // Evitar las filas del logo y el encabezado
+    if (rowNumber > 6) { 
       row.eachCell((cell) => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
