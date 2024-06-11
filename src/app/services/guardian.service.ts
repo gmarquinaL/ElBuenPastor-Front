@@ -33,6 +33,7 @@ export class GuardianService {
   deleteGuardian(id: number): Observable<GenericResponse<void>> {
     return this.http.delete<GenericResponse<void>>(`${this.apiUrl}/delete/${id}`);
   }
+
   searchGuardians(query: string): Observable<GenericResponse<Guardian[]>> {
     return this.http.get<GenericResponse<Guardian[]>>(`${this.apiUrl}/search?query=${query}`);
   }

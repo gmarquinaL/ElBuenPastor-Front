@@ -28,15 +28,9 @@
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Grado</mat-label>
       <mat-select formControlName="grade">
-        <mat-option value="3 años">3 años</mat-option>
-        <mat-option value="4 años">4 años</mat-option>
-        <mat-option value="5 años">5 años</mat-option>
-        <mat-option value="1er grado">1er grado</mat-option>
-        <mat-option value="2do grado">2do grado</mat-option>
-        <mat-option value="3er grado">3er grado</mat-option>
-        <mat-option value="4to grado">4to grado</mat-option>
-        <mat-option value="5to grado">5to grado</mat-option>
-        <mat-option value="6to grado">6to grado</mat-option>
+        <mat-option *ngFor="let grade of currentGradeOptions" [value]="grade">
+          {{ grade }}
+        </mat-option>
       </mat-select>
       <mat-error *ngIf="studentForm.get('grade').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
@@ -71,19 +65,38 @@
       <button mat-button class="highlight-button" (click)="addSibling()">Agregar Hermano</button>
     </div>
     <br>
-    <!-- Datos del Guardián -->
-    <mat-form-field appearance="fill" class="w-100">
-      <mat-label>Nombre del Guardián</mat-label>
-      <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián" [matAutocomplete]="guardianAuto">
-      <mat-autocomplete #guardianAuto="matAutocomplete">
-        <mat-option *ngFor="let guardian of filteredGuardians | async" [value]="guardian.fullName">
-          {{ guardian.fullName }}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-error *ngIf="studentForm.get('guardianName').errors?.['required']">Este campo es obligatorio.</mat-error>
-    </mat-form-field>
+    
+    <!-- Sección para seleccionar si crear o asignar guardián -->
+    <mat-radio-group formControlName="guardianOption" (change)="selectedGuardianOption = studentForm.get('guardianOption').value">
+      <mat-radio-button value="existing">Asignar Guardián Existente</mat-radio-button>
+      <mat-radio-button value="new">Crear Nuevo Guardián</mat-radio-button>
+    </mat-radio-group>
+    <br>
+    
+    <div *ngIf="selectedGuardianOption === 'existing'">
+      <!-- Asignar Guardián Existente -->
+      <h3>Asignar Guardián Existente</h3>
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Nombre del Guardián Existente</mat-label>
+        <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián existente" [matAutocomplete]="guardianAuto">
+        <mat-autocomplete #guardianAuto="matAutocomplete">
+          <mat-option *ngFor="let guardian of filteredGuardians | async" [value]="guardian.fullName">
+            {{ guardian.fullName }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
 
-    <mat-checkbox formControlName="guardianLivesWithStudent">El guardián vive con el estudiante</mat-checkbox>
+    <div *ngIf="selectedGuardianOption === 'new'">
+      <!-- Crear Nuevo Guardián -->
+      <h3>Crear Nuevo Guardián</h3>
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Nombre del Nuevo Guardián</mat-label>
+        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo guardián">
+      </mat-form-field>
+      <mat-checkbox formControlName="newGuardianLivesWithStudent">El nuevo guardián vive con el estudiante</mat-checkbox>
+      <button mat-button class="highlight-button" (click)="onCreateGuardian()">Crear Guardián</button>
+    </div>
   </form>
 </mat-dialog-content>
 

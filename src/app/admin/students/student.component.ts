@@ -35,7 +35,6 @@ export class StudentComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private changeDetectorRefs: ChangeDetectorRef
   ) {
-    // Initialize filter predicate
     this.dataSource.filterPredicate = this.createFilter();
   }
 
@@ -50,9 +49,12 @@ export class StudentComponent implements OnInit, OnDestroy {
   createFilter(): (data: any, filter: string) => boolean {
     return (data, filter): boolean => {
       const searchTerms = JSON.parse(filter);
-      return data.fullName.toLowerCase().includes(searchTerms.fullName)
-        && (searchTerms.level ? data.level === searchTerms.level : true)
-        && (searchTerms.grade ? data.grade === searchTerms.grade : true);
+      const fullNameMatch = data.fullName.toLowerCase().includes(searchTerms.fullName.toLowerCase());
+      const guardianNameMatch = data.guardian ? data.guardian.fullName.toLowerCase().includes(searchTerms.fullName.toLowerCase()) : false;
+      const levelMatch = searchTerms.level ? data.level === searchTerms.level : true;
+      const gradeMatch = searchTerms.grade ? data.grade === searchTerms.grade : true;
+      
+      return (fullNameMatch || guardianNameMatch) && levelMatch && gradeMatch;
     };
   }
 
@@ -87,8 +89,19 @@ export class StudentComponent implements OnInit, OnDestroy {
   loadAdditionalStudentDetails(): void {
     const detailsRequests = this.dataSource.data.map(studentSimple =>
       this.studentService.getStudentDetails(studentSimple.id).pipe(
-        map(response => ({ ...studentSimple, gender: response.data.gender, level: response.data.level, grade: response.data.grade })),
-        catchError(() => of({ ...studentSimple, gender: 'Desconocido', level: 'Desconocido', grade: 'Desconocido' }))
+        map(response => ({
+          ...studentSimple,
+          gender: response.data.gender,
+          level: response.data.level,
+          grade: response.data.grade,
+          guardian: response.data.guardian
+        })),
+        catchError(() => of({
+          ...studentSimple,
+          gender: 'Desconocido',
+          level: 'Desconocido',
+          grade: 'Desconocido'
+        }))
       )
     );
 
@@ -119,7 +132,7 @@ export class StudentComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadStudents(); // Volver a cargar la lista de estudiantes
+        this.loadStudents(); 
       }
     });
   }
@@ -160,7 +173,7 @@ export class StudentComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
-            this.loadStudents(); // Reload the student list if any changes were made
+            this.loadStudents(); 
           }
         });
       },

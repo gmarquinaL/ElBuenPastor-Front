@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription, Observable, of } from 'rxjs';
+import { Subscription, Observable, of } from 'rxjs'; 
 import { map, startWith } from 'rxjs/operators';
 import { StudentService } from 'src/app/services/student.service';
 import { GuardianService } from 'src/app/services/guardian.service';
@@ -19,10 +19,20 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
   studentForm: FormGroup;
   guardians: Guardian[] = [];
   students: StudentSimple[] = [];
+  
   filteredStudents: Observable<StudentSimple[]>[] = [];
-  filteredGuardians: Observable<Guardian[]>; // For real-time guardian search
+  filteredGuardians: Observable<Guardian[]>; 
   subscriptions = new Subscription();
   action: string;
+  selectedGuardianOption: string;
+  createdGuardianId: number;
+
+  gradeOptions = {
+    inicial: ['3 años', '4 años', '5 años'],
+    primaria: ['1er grado', '2do grado', '3er grado', '4to grado', '5to grado', '6to grado'],
+    secundaria: ['1er grado', '2do grado', '3er grado', '4to grado', '5to grado']
+  };
+  currentGradeOptions: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,6 +43,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.action = data.action || 'Agregar';
+    this.selectedGuardianOption = 'existing'; 
     this.initForm(data.student);
   }
 
@@ -43,6 +54,14 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
       startWith(''),
       map(value => this._filterGuardians(value))
     );
+
+    this.studentForm.get('level')!.valueChanges.subscribe(level => {
+      this.updateGradeOptions(level);
+    });
+
+    if (this.studentForm.get('level')!.value) {
+      this.updateGradeOptions(this.studentForm.get('level')!.value);
+    }
   }
 
   ngOnDestroy(): void {
@@ -59,13 +78,27 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
       gender: [student?.gender || '', [Validators.required]],
       current: [student?.current || false],
       siblings: this.fb.array([]),
+      guardianOption: [student?.guardian ? 'existing' : 'new'], 
       guardianId: [student?.guardian?.id],
       guardianName: [student?.guardian?.fullName || '', Validators.required],
-      guardianLivesWithStudent: [student?.guardian?.livesWithStudent || false]
+      guardianLivesWithStudent: [student?.guardian?.livesWithStudent || false],
+      newGuardianName: [''], 
+      newGuardianLivesWithStudent: [false] 
     });
 
     if (student?.siblings) {
       student.siblings.forEach(sibling => this.addSibling(sibling));
+    }
+
+    if (student?.guardian) {
+      this.selectedGuardianOption = 'existing';
+      this.filteredGuardians = of([student.guardian]);
+    } else {
+      this.selectedGuardianOption = 'new';
+    }
+
+    if (student?.level) {
+      this.updateGradeOptions(student.level);
     }
   }
 
@@ -149,41 +182,77 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
     return this.guardians.filter(guardian => guardian.fullName.toLowerCase().includes(filterValue));
   }
 
-  onSave(): void {
-    if (this.studentForm.valid) {
-      const formData = this.studentForm.value;
-      const guardian = this.guardians.find(g => g.fullName === formData.guardianName);
-      const studentData: Student = {
-        ...formData,
-        guardian: guardian ? {
-          id: guardian.id,
-          fullName: guardian.fullName,
-          livesWithStudent: guardian.livesWithStudent
-        } : {
-          fullName: formData.guardianName,
-          livesWithStudent: formData.guardianLivesWithStudent
-        },
-        siblings: this.siblings.value.filter(s => s.id)
-      };
-
-      const operation = studentData.id ?
-        this.studentService.updateStudent(studentData) :
-        this.studentService.addStudent(studentData);
-
-      this.subscriptions.add(
-        operation.subscribe({
-          next: () => {
-            this.snackBar.open(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`, 'OK', { duration: 3000 });
-            this.dialogRef.close(true);
-          },
-          error: (error) => {
-            console.error('Error al guardar el estudiante:', error);
-            this.snackBar.open('Error al guardar el estudiante: ' + (error.error.message || 'Error desconocido'), 'ERROR', { duration: 3000 });
-          }
-        })
-      );
+  onCreateGuardian(): void {
+    const newGuardianData = this.studentForm.get('newGuardianName').value;
+    if (newGuardianData) {
+        const newGuardian: Guardian = {
+            fullName: newGuardianData,
+            livesWithStudent: this.studentForm.get('newGuardianLivesWithStudent').value
+        };
+        this.guardianService.addGuardian(newGuardian).subscribe({
+            next: (response) => {
+                const guardian = response.data;
+                this.createdGuardianId = guardian.id;
+                this.snackBar.open('Nuevo guardián creado con éxito. Ahora puede asignarlo al estudiante.', 'OK', { duration: 3000 });
+                this.selectedGuardianOption = 'existing';
+                this.studentForm.patchValue({
+                    guardianId: guardian.id, 
+                    guardianName: guardian.fullName
+                });
+                this.loadGuardians();
+            },
+            error: (error) => {
+                this.snackBar.open('Error al crear guardián: ' + error.message, 'ERROR', { duration: 3000 });
+            }
+        });
     } else {
-      this.snackBar.open('Por favor, complete el formulario correctamente', 'ERROR', { duration: 3000 });
+        this.snackBar.open('Por favor, ingrese los datos del nuevo guardián', 'ERROR', { duration: 3000 });
+    }
+}
+
+onSave(): void {
+  if (this.studentForm.valid) {
+    const formData = this.studentForm.value;
+    const guardian = this.guardians.find(g => g.fullName === formData.guardianName);
+    const studentData: Student = {
+      ...formData,
+      guardian: guardian ? {
+        id: guardian.id,
+        fullName: guardian.fullName,
+        livesWithStudent: guardian.livesWithStudent
+      } : {
+        fullName: formData.guardianName,
+        livesWithStudent: formData.guardianLivesWithStudent
+      },
+      siblings: this.siblings.value.filter(s => s.id)
+    };
+
+    const operation = studentData.id ?
+      this.studentService.updateStudent(studentData) :
+      this.studentService.addStudent(studentData);
+
+    this.subscriptions.add(
+      operation.subscribe({
+        next: () => {
+          this.snackBar.open(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`, 'OK', { duration: 3000 });
+          this.dialogRef.close(true);
+        },
+        error: (error) => {
+          console.error('Error al guardar el estudiante:', error);
+          this.snackBar.open('Error al guardar el estudiante: ' + (error.error.message || 'Error desconocido'), 'ERROR', { duration: 3000 });
+        }
+      })
+    );
+  } else {
+    this.snackBar.open('Por favor, complete el formulario correctamente', 'ERROR', { duration: 3000 });
+  }
+}
+
+  updateGradeOptions(level: string): void {
+    this.currentGradeOptions = this.gradeOptions[level] || [];
+    const currentGrade = this.studentForm.get('grade')!.value;
+    if (!this.currentGradeOptions.includes(currentGrade)) {
+      this.studentForm.get('grade')!.setValue('');
     }
   }
 
