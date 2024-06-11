@@ -11,7 +11,8 @@ import { StudentDialogComponent } from './student-dialog/student-dialog.componen
 import { ConfirmDialogComponent } from '../payment/confirm-dialog/confirm-dialog.component';
 import { StudentDetailsComponent } from './student-details/student-details.component';
 import Swal from 'sweetalert2';
-import * as XLSX from 'xlsx';
+import { exportStudentsToExcel } from '../students/excel-export.service';
+import { logoBase64 } from '../payment/logoBase64';
 
 interface StudentCombined extends StudentSimple {
   gender?: string;
@@ -217,9 +218,7 @@ export class StudentComponent implements OnInit, OnDestroy {
       });
     });
 
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook: XLSX.WorkBook = { Sheets: { 'Estudiantes': worksheet }, SheetNames: ['Estudiantes'] };
-    XLSX.writeFile(workbook, 'Estudiantes.xlsx');
+    exportStudentsToExcel(dataToExport, logoBase64);
   }
 
   groupByGuardian(data: StudentCombined[]): { [key: string]: StudentCombined[] } {

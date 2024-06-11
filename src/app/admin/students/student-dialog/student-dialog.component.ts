@@ -99,6 +99,9 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
     if (student?.level) {
       this.updateGradeOptions(student.level);
     }
+
+    // Deshabilitar los controles de los hermanos
+    this.disableSiblingControls();
   }
 
   get siblings(): FormArray {
@@ -108,7 +111,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
   addSibling(sibling?: Student): void {
     const siblingFormGroup = this.fb.group({
       id: [sibling?.id],
-      fullName: ['', Validators.required]
+      fullName: [{ value: sibling?.fullName || '', disabled: true }, Validators.required]
     });
     this.siblings.push(siblingFormGroup);
     this.filteredStudents.push(this.createFilterForSibling(siblingFormGroup.get('fullName') as FormControl, siblingFormGroup));
@@ -273,5 +276,9 @@ onSave(): void {
       html: `<span style="font-size: 1.3em;">${message}</span>`,
       showConfirmButton: true
     });
+  }
+
+  private disableSiblingControls(): void {
+    this.siblings.controls.forEach(control => control.get('fullName')?.disable());
   }
 }

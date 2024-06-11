@@ -49,22 +49,15 @@
     <!-- Gestión de Hermanos -->
     <div formArrayName="siblings">
       <div *ngFor="let sibling of siblings.controls; let i = index" [formGroupName]="i">
+        <h3>Hermanos</h3>
+
         <mat-form-field appearance="fill" class="w-100">
           <mat-label>Hermano {{ i + 1 }}</mat-label>
-          <input type="text" matInput [matAutocomplete]="auto" formControlName="fullName">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let student of filteredStudents[i] | async" [value]="student.fullName">
-              {{ student.fullName }}
-            </mat-option>
-          </mat-autocomplete>
-          <button mat-icon-button matSuffix aria-label="Eliminar hermano" (click)="removeSibling(i)">
-            <mat-icon>remove_circle_outline</mat-icon>
-          </button>
+          <input type="text" matInput formControlName="fullName" [disabled]="true">
         </mat-form-field>
       </div>
-      <button mat-button class="highlight-button" (click)="addSibling()">Agregar Hermano</button>
     </div>
-    <br>
+
     
     <!-- Sección para seleccionar si crear o asignar guardián -->
     <mat-radio-group formControlName="guardianOption" (change)="selectedGuardianOption = studentForm.get('guardianOption').value">
