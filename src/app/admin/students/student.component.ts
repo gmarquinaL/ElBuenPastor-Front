@@ -35,7 +35,9 @@ export class StudentComponent implements OnInit, OnDestroy {
     fullName: '',
     level: '',
     grade: '',
-    hasSiblings: ''
+    hasSiblings: '',
+    exportSiblingsOnly: false 
+    
   };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -82,7 +84,8 @@ export class StudentComponent implements OnInit, OnDestroy {
       fullName: '',
       level: '',
       grade: '',
-      hasSiblings: ''
+      hasSiblings: '',
+      exportSiblingsOnly: false 
     };
     this.applyFilter();
   }
@@ -201,13 +204,18 @@ export class StudentComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel(): void {
-    const groupedData = this.groupByGuardian(this.dataSource.filteredData);
-    const dataToExport: any[] = [];
-
+    let dataToExport: StudentCombined[] = this.dataSource.filteredData;
+    if (this.filterValues.exportSiblingsOnly) {
+      dataToExport = dataToExport.filter(student => student.siblingName !== 'No tiene hermanos');
+    }
+    
+    const groupedData = this.groupByGuardian(dataToExport);
+    const dataToExportFormatted: any[] = [];
+  
     Object.keys(groupedData).forEach(guardian => {
       const students = groupedData[guardian];
       students.forEach((student, index) => {
-        dataToExport.push({
+        dataToExportFormatted.push({
           'Guardián': index === 0 ? guardian : '',
           'Nombre Completo': student.fullName,
           'Género': student.gender,
@@ -217,10 +225,9 @@ export class StudentComponent implements OnInit, OnDestroy {
         });
       });
     });
-
-    exportStudentsToExcel(dataToExport, logoBase64);
+  
+    exportStudentsToExcel(dataToExportFormatted, logoBase64);
   }
-
   groupByGuardian(data: StudentCombined[]): { [key: string]: StudentCombined[] } {
     return data.reduce((acc, student) => {
       const guardianName = student.guardian?.fullName || 'Sin guardián';

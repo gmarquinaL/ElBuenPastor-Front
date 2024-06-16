@@ -1,78 +1,73 @@
-<mat-card class="cardWithShadow">
-  <mat-card-content>
-    <div class="row justify-content-between align-items-center">
-      <div class="col-md-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Buscar estudiante</mat-label>
-          <input matInput placeholder="Nombre" (input)="applyFilter()" [(ngModel)]="filterValues.fullName">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-      </div>
-      <div class="col-md-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Nivel</mat-label>
-          <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.level">
-            <mat-option value="">Todos</mat-option>
-            <mat-option value="inicial">Inicial</mat-option>
-            <mat-option value="primaria">Primaria</mat-option>
-            <mat-option value="secundaria">Secundaria</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <div class="col-md-2">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Grado</mat-label>
-          <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.grade">
-            <mat-option value="">Todos</mat-option>
-            <mat-option value="3 años">3 años</mat-option>
-            <mat-option value="4 años">4 años</mat-option>
-            <mat-option value="5 años">5 años</mat-option>
-            <mat-option value="1er grado">1er grado</mat-option>
-            <mat-option value="2do grado">2do grado</mat-option>
-            <mat-option value="3er grado">3er grado</mat-option>
-            <mat-option value="4to grado">4to grado</mat-option>
-            <mat-option value="5to grado">5to grado</mat-option>
-            <mat-option value="6to grado">6to grado</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <div class="col-md-4 text-end d-flex align-items-center justify-content-between">
-        <button mat-button class="clear-filters-button" (click)="clearFilters()">Limpiar Filtros</button>
-        <button mat-flat-button (click)="openStudentDialog('Registrar')" color="primary" class="highlight-button">
-          Registrar Estudiante
-        </button>
-      </div>
-    </div>
-    <div class="row justify-content-between align-items-center mt-3">
-      <div class="col-md-8 d-flex align-items-center">
-        <button mat-raised-button 
-                class="filter-button" 
-                [color]="filterValues.hasSiblings === 'yes' ? 'primary' : ''"
-                (click)="filterSiblings('yes')">
-          Con Hermanos
-        </button>
-        <button mat-raised-button 
-                class="filter-button" 
-                [color]="filterValues.hasSiblings === 'no' ? 'primary' : ''"
-                (click)="filterSiblings('no')">
-          Sin Hermanos
-        </button>
-        <button mat-raised-button 
-                class="filter-button" 
-                [color]="filterValues.hasSiblings === '' ? 'primary' : ''"
-                (click)="filterSiblings('')">
-          Todos
-        </button>
-      </div>
-      <div class="col-md-4 text-end">
-        <button mat-flat-button (click)="exportToExcel()" color="primary" class="export-button">
-          Exportar a Excel
-        </button>
-      </div>
-    </div>
-  </mat-card-content>
-</mat-card>
+<div class="row">
+  <!-- Primer Card: Filtros de Búsqueda -->
+  <div class="col-12 mb-3">
+    <mat-card class="cardWithShadow">
+      <mat-card-content>
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Buscar estudiante</mat-label>
+              <input matInput placeholder="Nombre" (input)="applyFilter()" [(ngModel)]="filterValues.fullName">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Nivel</mat-label>
+              <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.level">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="inicial">Inicial</mat-option>
+                <mat-option value="primaria">Primaria</mat-option>
+                <mat-option value="secundaria">Secundaria</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Grado</mat-label>
+              <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.grade">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="3 años">3 años</mat-option>
+                <mat-option value="4 años">4 años</mat-option>
+                <mat-option value="5 años">5 años</mat-option>
+                <mat-option value="1er grado">1er grado</mat-option>
+                <mat-option value="2do grado">2do grado</mat-option>
+                <mat-option value="3er grado">3er grado</mat-option>
+                <mat-option value="4to grado">4to grado</mat-option>
+                <mat-option value="5to grado">5to grado</mat-option>
+                <mat-option value="6to grado">6to grado</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3 d-flex justify-content-end">
+            <button mat-button class="clear-filters-button same-size-button" (click)="clearFilters()">Limpiar Filtros</button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
+  <!-- Segundo Card: Exportar a Excel y Registrar Estudiante -->
+  <div class="col-12">
+    <mat-card class="cardWithShadow">
+      <mat-card-content>
+        <div class="row align-items-center justify-content-between">
+          <div class="col-md-8 d-flex align-items-center">
+            <mat-checkbox [(ngModel)]="filterValues.exportSiblingsOnly" class="highlighted-checkbox me-3">¿Exportar solo hermanos?</mat-checkbox>
+            <button mat-flat-button (click)="exportToExcel()" color="primary" class="export-button">
+              Exportar a Excel
+            </button>
+          </div>
+          <div class="col-md-4 d-flex justify-content-end">
+            <button mat-flat-button (click)="openStudentDialog('Registrar')" color="primary" class="highlight-button same-size-button">
+              Registrar Estudiante
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
 <div class="row">
   <div class="col-sm-12 col-md-6 col-lg-4" *ngFor="let student of dataSource.filteredData">
     <mat-card class="cardWithShadow student-card">

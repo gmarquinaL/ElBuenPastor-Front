@@ -66,6 +66,7 @@
     .export-button {
       background-color: #54adba;
       color: #fff;
+      margin-left: 20px;
     }
     
     .student-card {
@@ -96,5 +97,9 @@
     
     .bg-light-danger {
       background-color: #f8d7da;
+    }
+    
+    .same-size-button {
+      min-width: 160px; 
     }
     
