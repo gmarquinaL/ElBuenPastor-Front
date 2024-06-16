@@ -42,14 +42,14 @@
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Nombre</th>
-          <td mat-cell *matCellDef="let payment" class="f-s-14">{{ payment.name }}</td>
+          <td mat-cell *matCellDef="let payment" class="f-s-14 wrap-text">{{ payment.name }}</td>
         </ng-container>
-
+        
         <ng-container matColumnDef="concept">
           <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Concepto</th>
-          <td mat-cell *matCellDef="let payment" class="f-s-14">{{ payment.concept }}</td>
-        </ng-container>
-
+          <td mat-cell *matCellDef="let payment" class="f-s-14 wrap-text">{{ payment.concept }}</td>
+        </ng-container>        
+        
         <ng-container matColumnDef="amount">
           <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Monto</th>
           <td mat-cell *matCellDef="let payment" class="f-s-14">{{ payment.amount | currency }}</td>

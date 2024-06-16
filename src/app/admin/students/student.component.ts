@@ -28,7 +28,7 @@ interface StudentCombined extends StudentSimple {
   styleUrls: ['./student.component.scss']
 })
 export class StudentComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['fullName', 'gender', 'actions'];
+  displayedColumns: string[] = ['photo', 'fullName', 'siblings', 'guardian', 'actions'];
   dataSource = new MatTableDataSource<StudentCombined>();
   private subscriptions = new Subscription();
   filterValues = {

@@ -1,4 +1,14 @@
 ::ng-deep .small-icon {
-    font-size: 12px !important; /* Ajusta el tamaño según tus necesidades */
+    font-size: 12px !important;  
+  }
+  .text-ellipsis {
+    max-width: 200px;  
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wrap-text {
+    white-space: normal;  
+    word-wrap: break-word; 
   }
   

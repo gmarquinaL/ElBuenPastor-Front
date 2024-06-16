@@ -1,15 +1,17 @@
-  
+::ng-deep .small-icon {
+  font-size: 12px !important;  
+} 
   .profile-img {
-    margin-bottom: 5px; /* Espacio adicional debajo de la imagen */
+    margin-bottom: 5px; 
   }
   
   .button-group button {
-    margin-right: 12px; /* Espacio entre botones */
-    margin-top: 15px; /* Espacio adicional encima de los botones */
+    margin-right: 12px; 
+    margin-top: 15px; 
   }
   
   .bg-light-success {
-    margin-top: 10px; /* Espacio adicional encima de los estados */
+    margin-top: 10px;
   }
 
    .guardian{
@@ -48,12 +50,7 @@
     }
     
 
-    .cardWithShadow {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      margin-bottom: 20px;
-    }
-    
-    .filter-button {
+   .filter-button {
       margin-right: 10px;
       margin-bottom: 10px;
     }
@@ -102,4 +99,58 @@
     .same-size-button {
       min-width: 160px; 
     }
+
+
+    .mat-cell {
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+    }
+
+    .profile-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto; 
+    }
+    .mat-header-cell {
+      font-weight: bold;
+    }
+
+
+    .text-wrap {
+      white-space: normal; 
+      word-wrap: break-word; 
+      max-width: 160px; 
+    }
+    .action-icons {
+      display: flex;
+      justify-content: center; 
+      width: 100%; 
+    }
+
+
     
+    .mat-elevation-z8 {
+      border-radius: 8px; 
+      overflow: hidden; 
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    }
+    .mat-header-row {
+      background-color: #e7f5ff; 
+    }
+    .boton{
+      text-align: center;  
+      font-weight: bold;
+
+    }
+    .mat-header-cell {
+      font-family: 'Roboto', sans-serif; /* Asegura que el tipo de letra sea uniforme */
+      font-weight: bold; /* Texto en negrita */
+    }
+   /* Aplica Roboto a todo el contenido dentro de mat-card-content */
+.mat-card-content {
+  font-family: 'Roboto', sans-serif;
+}
+ 
