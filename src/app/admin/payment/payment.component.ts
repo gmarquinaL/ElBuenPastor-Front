@@ -167,6 +167,10 @@ export class PaymentComponent implements OnInit, AfterViewInit {
       disableClose: true,
       width: '400px'
     });
+
+    dialogRef.componentInstance.fileUploaded.subscribe(() => {
+      this.loadPayments(); 
+    });
   
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.event === 'Upload') {

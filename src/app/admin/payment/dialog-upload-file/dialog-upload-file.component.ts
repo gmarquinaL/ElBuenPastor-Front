@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PaymentService } from 'src/app/services/payment.service';
@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./dialog-upload-file.component.scss']
 })
 export class DialogUploadFileComponent {
+  @Output() fileUploaded: EventEmitter<void> = new EventEmitter<void>();
   file: File | null = null;
 
   constructor(
@@ -44,6 +45,7 @@ export class DialogUploadFileComponent {
             icon: 'success',
             showConfirmButton: true
           }).then(() => {
+            this.fileUploaded.emit();
             this.dialogRef.close(response); 
           });
         },
