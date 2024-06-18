@@ -216,7 +216,7 @@ export class StudentComponent implements OnInit, OnDestroy {
       const students = groupedData[guardian];
       students.forEach((student, index) => {
         dataToExportFormatted.push({
-          'Guardián': index === 0 ? guardian : '',
+          'Apoderado': index === 0 ? guardian : '',
           'Nombre Completo': student.fullName,
           'Género': student.gender,
           'Nivel': student.level,
@@ -230,7 +230,7 @@ export class StudentComponent implements OnInit, OnDestroy {
   }
   groupByGuardian(data: StudentCombined[]): { [key: string]: StudentCombined[] } {
     return data.reduce((acc, student) => {
-      const guardianName = student.guardian?.fullName || 'Sin guardián';
+      const guardianName = student.guardian?.fullName || 'Sin apoderado';
       if (!acc[guardianName]) {
         acc[guardianName] = [];
       }

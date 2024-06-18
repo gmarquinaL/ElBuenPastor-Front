@@ -153,7 +153,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
             map(value => this._filterGuardians(value))
           );
         },
-        error: () => this.showErrorMessage('Error al cargar guardianes')
+        error: () => this.showErrorMessage('Error al cargar apoderados')
       })
     );
   }
@@ -195,7 +195,7 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
             next: (response) => {
                 const guardian = response.data;
                 this.createdGuardianId = guardian.id;
-                this.showSuccessMessage('Nuevo guardián creado con éxito. Ahora puede asignarlo al estudiante.');
+                this.showSuccessMessage('Nuevo apoderado creado con éxito. Ahora puede asignarlo al estudiante.');
                 this.selectedGuardianOption = 'existing';
                 this.studentForm.patchValue({
                     guardianId: guardian.id, 
@@ -204,11 +204,11 @@ export class StudentDialogComponent implements OnInit, OnDestroy {
                 this.loadGuardians();
             },
             error: (error) => {
-                this.showErrorMessage('Error al crear guardián: ' + error.message);
+                this.showErrorMessage('Error al crear apoderado: ' + error.message);
             }
         });
     } else {
-        this.showErrorMessage('Por favor, ingrese los datos del nuevo guardián');
+        this.showErrorMessage('Por favor, ingrese los datos del nuevo apoderado');
     }
 }
 

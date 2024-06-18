@@ -61,16 +61,16 @@
     
     <!-- Sección para seleccionar si crear o asignar guardián -->
     <mat-radio-group formControlName="guardianOption" (change)="selectedGuardianOption = studentForm.get('guardianOption').value">
-      <mat-radio-button value="existing">Asignar Guardián Existente</mat-radio-button>
-      <mat-radio-button value="new">Crear Nuevo Guardián</mat-radio-button>
+      <mat-radio-button value="existing">Asignar Apoderado Existente</mat-radio-button>
+      <mat-radio-button value="new">Crear Nuevo Apoderado</mat-radio-button>
     </mat-radio-group>
     <br>
     
     <div *ngIf="selectedGuardianOption === 'existing'">
-      <!-- Asignar Guardián Existente -->
-      <h3>Asignar Guardián Existente</h3>
+      <!-- Asignar apoderado Existente -->
+      <h3>Asignar Apoderado Existente</h3>
       <mat-form-field appearance="fill" class="w-100">
-        <mat-label>Nombre del Guardián Existente</mat-label>
+        <mat-label>Nombre del Apoderado Existente</mat-label>
         <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián existente" [matAutocomplete]="guardianAuto">
         <mat-autocomplete #guardianAuto="matAutocomplete">
           <mat-option *ngFor="let guardian of filteredGuardians | async" [value]="guardian.fullName">
@@ -81,14 +81,15 @@
     </div>
 
     <div *ngIf="selectedGuardianOption === 'new'">
-      <!-- Crear Nuevo Guardián -->
-      <h3>Crear Nuevo Guardián</h3>
+      <!-- Crear Nuevo apoderado -->
+      <h3>Crear Nuevo Apoderado</h3>
       <mat-form-field appearance="fill" class="w-100">
-        <mat-label>Nombre del Nuevo Guardián</mat-label>
-        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo guardián">
+        <mat-label>Nombre del Nuevo Apoderado</mat-label>
+        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo apoderado">
+
       </mat-form-field>
-      <mat-checkbox formControlName="newGuardianLivesWithStudent">El nuevo guardián vive con el estudiante</mat-checkbox>
-      <button mat-button class="highlight-button" (click)="onCreateGuardian()">Crear Guardián</button>
+      <mat-checkbox formControlName="newGuardianLivesWithStudent">El nuevo apoderado vive con el estudiante</mat-checkbox>
+      <button mat-button class="highlight-button" (click)="onCreateGuardian()">Crear apoderado</button>
     </div>
   </form>
 </mat-dialog-content>

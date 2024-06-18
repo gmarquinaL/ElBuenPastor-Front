@@ -36,7 +36,7 @@ export async function exportStudentsToExcel(students, logoBase64) {
   worksheet.getCell('D6').value = 'Género';
   worksheet.getCell('E6').value = 'Nivel';
   worksheet.getCell('F6').value = 'Grado';
-  worksheet.getCell('G6').value = 'Guardián';
+  worksheet.getCell('G6').value = 'Apoderado';
 
   // Estilizar encabezados
   ['C6', 'D6', 'E6', 'F6', 'G6'].forEach((header) => {
@@ -54,10 +54,8 @@ export async function exportStudentsToExcel(students, logoBase64) {
     cell.alignment = { vertical: 'middle', horizontal: 'center' };
   });
 
-  // Ajustar la altura de los títulos de las columnas
   worksheet.getRow(6).height = 35;
 
-  // Agregar datos a partir de la fila 7, columna C
   students.forEach((student, index) => {
     const rowIndex = index + 7;
     worksheet.getRow(rowIndex).height = 20;
@@ -75,7 +73,7 @@ export async function exportStudentsToExcel(students, logoBase64) {
     worksheet.getCell(`D${rowIndex}`).value = student['Género'];
     worksheet.getCell(`E${rowIndex}`).value = student['Nivel'];
     worksheet.getCell(`F${rowIndex}`).value = student['Grado'];
-    worksheet.getCell(`G${rowIndex}`).value = student['Guardián'];
+    worksheet.getCell(`G${rowIndex}`).value = student['Apoderado'];
   });
   // Centrar contenido de columnas
   worksheet.eachRow((row, rowNumber) => {
