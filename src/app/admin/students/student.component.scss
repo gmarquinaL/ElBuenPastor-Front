@@ -1,6 +1,6 @@
 ::ng-deep .small-icon {
   font-size: 12px !important;  
-} 
+}
   .profile-img {
     margin-bottom: 5px; 
   }
@@ -146,11 +146,10 @@
 
     }
     .mat-header-cell {
-      font-family: 'Roboto', sans-serif; /* Asegura que el tipo de letra sea uniforme */
-      font-weight: bold; /* Texto en negrita */
+      font-family: 'Roboto', sans-serif; 
+      font-weight: bold;
     }
-   /* Aplica Roboto a todo el contenido dentro de mat-card-content */
-.mat-card-content {
-  font-family: 'Roboto', sans-serif;
-}
- 
+  .mat-card-content {
+    font-family: 'Roboto', sans-serif;
+  }
+  

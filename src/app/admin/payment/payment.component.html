@@ -10,7 +10,7 @@
           </mat-icon>
         </mat-form-field>
       </div>
-      <div class="col-6 col-md-2 mb-2">
+      <div class="col-6 col-md-3 mb-2">
         <mat-form-field appearance="outline" class="w-100 hide-hint">
           <input matInput [matDatepicker]="startPicker" placeholder="Fecha de Pago Desde"
             (dateChange)="applyFilters()" [(ngModel)]="paymentDateFrom">
@@ -18,7 +18,7 @@
           <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
       </div>
-      <div class="col-6 col-md-2 mb-2">
+      <div class="col-6 col-md-3 mb-2">
         <mat-form-field appearance="outline" class="w-100 hide-hint">
           <input matInput [matDatepicker]="endPicker" placeholder="Fecha de Pago Hasta"
             (dateChange)="applyFilters()" [(ngModel)]="paymentDateTo">
@@ -26,15 +26,23 @@
           <mat-datepicker #endPicker></mat-datepicker>
         </mat-form-field>
       </div>
-      <div class="col-12 col-md-4 text-end d-flex align-items-center justify-content-end gap-2">
+      <div class="col-12 col-md-2 text-end d-flex align-items-center justify-content-end gap-2">
         <button mat-flat-button (click)="clearFilters()" color="warn" class="w-100 w-md-auto">Limpiar Filtros</button>
-        <button mat-flat-button (click)="openUploadDialog()" color="accent" class="w-100 w-md-auto">Cargar Archivo</button>
-        <!-- Botón para exportar a Excel -->
-        <button mat-flat-button (click)="exportToExcel()" color="primary" class="w-100 w-md-auto">Exportar a Excel</button>
       </div>
     </div>
   </mat-card-content>
 </mat-card>
+
+
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="d-flex justify-content-between">
+      <button mat-flat-button (click)="exportToExcel()" color="primary" class="btn-small btn-wide">Exportar a Excel</button>
+      <button mat-flat-button (click)="openUploadDialog()" color="accent" class="btn-small btn-wide">Cargar Archivo</button>
+    </div>
+  </mat-card-content>
+</mat-card>
+
 
 <mat-card class="cardWithShadow">
   <mat-card-content>
