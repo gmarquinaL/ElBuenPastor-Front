@@ -37,7 +37,6 @@ export class StudentComponent implements OnInit, OnDestroy {
     grade: '',
     hasSiblings: '',
     exportSiblingsOnly: false 
-    
   };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -146,14 +145,29 @@ export class StudentComponent implements OnInit, OnDestroy {
     }
   }
 
-
   updateStudentInPlace(updatedStudent: StudentCombined): void {
     const index = this.dataSource.data.findIndex(student => student.id === updatedStudent.id);
     if (index !== -1) {
       this.dataSource.data[index] = updatedStudent;
       this.dataSource.data = [...this.dataSource.data];
-      this.changeDetectorRefs.detectChanges();
+      this.updateSiblingInfo(updatedStudent);
+
+    } else {
+      this.dataSource.data = [updatedStudent, ...this.dataSource.data];
+      this.updateSiblingInfo(updatedStudent);
+
     }
+    this.applyFilter();
+  }
+  updateSiblingInfo(updatedStudent: StudentCombined): void {
+    this.dataSource.data.forEach(student => {
+      if (student.guardian?.fullName === updatedStudent.guardian?.fullName) {
+        student.siblingName = this.dataSource.data
+          .filter(sibling => sibling.guardian?.fullName === updatedStudent.guardian?.fullName && sibling.id !== student.id)
+          .map(sibling => sibling.fullName)
+          .join(', ') || 'No tiene hermanos';
+      }
+    });
   }
   private openDialog(action: string, studentData?: Student): void {
     const dialogRef = this.dialog.open(StudentDialogComponent, {
@@ -161,14 +175,17 @@ export class StudentComponent implements OnInit, OnDestroy {
       data: { action, student: studentData || {} as Student }
     });
   
+    dialogRef.componentInstance.studentUpdated.subscribe((updatedStudent: Student) => {
+      this.updateStudentInPlace(updatedStudent as StudentCombined);
+    });
+  
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.updatedStudent) {
         this.updateStudentInPlace(result.updatedStudent);
-      } else {
-        this.loadStudents(); 
       }
     });
   }
+  
 
   deleteStudent(id: number): void {
     const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -238,7 +255,6 @@ export class StudentComponent implements OnInit, OnDestroy {
 
     exportStudentsToExcel(dataToExportFormatted, logoBase64);
   }
-
 
   groupByGuardian(data: StudentCombined[]): { [key: string]: StudentCombined[] } {
     return data.reduce((acc, student) => {

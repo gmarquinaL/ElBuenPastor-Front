@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription, Observable, of } from 'rxjs'; 
@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./student-dialog.component.scss']
 })
 export class StudentDialogComponent implements OnInit, OnDestroy {
+  @Output() studentUpdated = new EventEmitter<Student>();
   studentForm: FormGroup;
   guardians: Guardian[] = [];
   students: StudentSimple[] = [];
@@ -237,7 +238,8 @@ onSave(): void {
       operation.subscribe({
         next: (response) => {
           this.showSuccessMessage(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`);
-          this.dialogRef.close({ updatedStudent: response.data }); // Pasar el estudiante actualizado
+          this.studentUpdated.emit(response.data); 
+          this.dialogRef.close({ updatedStudent: response.data });
         },
         error: (error) => {
           console.error('Error al guardar el estudiante:', error);
