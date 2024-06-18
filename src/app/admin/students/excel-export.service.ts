@@ -15,7 +15,6 @@ export async function exportStudentsToExcel(students, logoBase64) {
     ext: { width: 100, height: 100 }
   });
 
-  // Título centrado
   worksheet.mergeCells('C2:G2');
   worksheet.getCell('C2').value = 'Reporte de Estudiantes';
   worksheet.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
@@ -63,10 +62,9 @@ export async function exportStudentsToExcel(students, logoBase64) {
     worksheet.getCell(`D${rowIndex}`).value = student.gender;
     worksheet.getCell(`E${rowIndex}`).value = student.level;
     worksheet.getCell(`F${rowIndex}`).value = student.grade;
-    worksheet.getCell(`G${rowIndex}`).value = student.guardianName;
+    worksheet.getCell(`G${rowIndex}`).value = student.guardian ? student.guardian.fullName : 'Sin apoderado';
   });
 
-  
   students.forEach((student, index) => {
     const rowIndex = index + 7;
     worksheet.getCell(`C${rowIndex}`).value = student['Nombre Completo'];
@@ -75,6 +73,7 @@ export async function exportStudentsToExcel(students, logoBase64) {
     worksheet.getCell(`F${rowIndex}`).value = student['Grado'];
     worksheet.getCell(`G${rowIndex}`).value = student['Apoderado'];
   });
+  
   // Centrar contenido de columnas
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber > 6) {

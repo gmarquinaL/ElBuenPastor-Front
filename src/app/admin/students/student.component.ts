@@ -219,26 +219,27 @@ export class StudentComponent implements OnInit, OnDestroy {
     if (this.filterValues.exportSiblingsOnly) {
       dataToExport = dataToExport.filter(student => student.siblingName !== 'No tiene hermanos');
     }
-    
+
     const groupedData = this.groupByGuardian(dataToExport);
     const dataToExportFormatted: any[] = [];
-  
+
     Object.keys(groupedData).forEach(guardian => {
       const students = groupedData[guardian];
-      students.forEach((student, index) => {
+      students.forEach((student) => {
         dataToExportFormatted.push({
-          'Apoderado': index === 0 ? guardian : '',
           'Nombre Completo': student.fullName,
           'Género': student.gender,
           'Nivel': student.level,
           'Grado': student.grade,
-          'Hermanos': student.siblingName
+          'Apoderado': guardian
         });
       });
     });
-  
+
     exportStudentsToExcel(dataToExportFormatted, logoBase64);
   }
+
+
   groupByGuardian(data: StudentCombined[]): { [key: string]: StudentCombined[] } {
     return data.reduce((acc, student) => {
       const guardianName = student.guardian?.fullName || 'Sin apoderado';
