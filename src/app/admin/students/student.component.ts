@@ -146,14 +146,25 @@ export class StudentComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  updateStudentInPlace(updatedStudent: StudentCombined): void {
+    const index = this.dataSource.data.findIndex(student => student.id === updatedStudent.id);
+    if (index !== -1) {
+      this.dataSource.data[index] = updatedStudent;
+      this.dataSource.data = [...this.dataSource.data];
+      this.changeDetectorRefs.detectChanges();
+    }
+  }
   private openDialog(action: string, studentData?: Student): void {
     const dialogRef = this.dialog.open(StudentDialogComponent, {
       width: '650px',
       data: { action, student: studentData || {} as Student }
     });
-
+  
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+      if (result && result.updatedStudent) {
+        this.updateStudentInPlace(result.updatedStudent);
+      } else {
         this.loadStudents(); 
       }
     });

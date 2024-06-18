@@ -235,9 +235,9 @@ onSave(): void {
 
     this.subscriptions.add(
       operation.subscribe({
-        next: () => {
+        next: (response) => {
           this.showSuccessMessage(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`);
-          this.dialogRef.close(true);
+          this.dialogRef.close({ updatedStudent: response.data }); // Pasar el estudiante actualizado
         },
         error: (error) => {
           console.error('Error al guardar el estudiante:', error);
@@ -249,6 +249,7 @@ onSave(): void {
     this.showErrorMessage('Por favor, complete el formulario correctamente');
   }
 }
+
 
   updateGradeOptions(level: string): void {
     this.currentGradeOptions = this.gradeOptions[level] || [];

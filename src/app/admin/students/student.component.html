@@ -1,17 +1,17 @@
 <div class="row">
   <!-- Primer Card: Filtros de Búsqueda -->
   <div class="col-12 mb-3">
-    <mat-card class="cardWithShadow">
+    <mat-card class="cardWithShadow cardFullWidth">
       <mat-card-content>
         <div class="row align-items-center">
-          <div class="col-md-3">
+          <div class="col-md-3 col-sm-6 mb-2">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Buscar estudiante</mat-label>
               <input matInput placeholder="Nombre" (input)="applyFilter()" [(ngModel)]="filterValues.fullName">
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2 col-sm-6 mb-2">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Nivel</mat-label>
               <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.level">
@@ -22,7 +22,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-3 col-sm-6 mb-2">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Grado</mat-label>
               <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.grade">
@@ -39,7 +39,17 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-md-3 d-flex justify-content-end">
+          <div class="col-md-2 col-sm-6 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Hermanos</mat-label>
+              <mat-select (selectionChange)="applyFilter()" [(ngModel)]="filterValues.hasSiblings">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="yes">Hermanos</mat-option>
+                <mat-option value="no">Sin hermanos</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-2 col-sm-6 mb-2 d-flex justify-content-end">
             <button mat-button class="clear-filters-button same-size-button" (click)="clearFilters()">Limpiar Filtros</button>
           </div>
         </div>
@@ -48,12 +58,11 @@
   </div>
 
   <!-- Segundo Card: Exportar a Excel y Registrar Estudiante -->
-  <div class="col-12">
-    <mat-card class="cardWithShadow">
+  <div class="col-12 mb-3">
+    <mat-card class="cardWithShadow cardFullWidth">
       <mat-card-content>
         <div class="row align-items-center justify-content-between">
           <div class="col-md-8 d-flex align-items-center">
-            <mat-checkbox [(ngModel)]="filterValues.exportSiblingsOnly" class="highlighted-checkbox me-3">¿Exportar solo hermanos?</mat-checkbox>
             <button mat-flat-button (click)="exportToExcel()" color="primary" class="export-button">
               Exportar a Excel
             </button>
@@ -67,65 +76,59 @@
       </mat-card-content>
     </mat-card>
   </div>
-</div>
 
-
-<div class="col-12">
-  <mat-card class="cardWithShadow">
-    <mat-card-content>
-      <div class="table-responsive">
-        <table mat-table [dataSource]="dataSource" class="full-width-table">
-          <ng-container matColumnDef="photo">
-            <th mat-header-cell *matHeaderCellDef class="boton"> Foto </th>
-            <td mat-cell *matCellDef="let element" class="photo-cell">
-              <div class="photo-container">
-                <img *ngIf="element.gender?.toLowerCase() === 'masculino'" src="assets/images/profile/user6.jpg" class="profile-img">
-                <img *ngIf="element.gender?.toLowerCase() === 'femenino'" src="assets/images/profile/user3.jpg" class="profile-img">
-              </div>
-            </td>
-          </ng-container>
-    
-
-    <ng-container matColumnDef="fullName">
-      <th mat-header-cell *matHeaderCellDef class="boton"> Nombre </th>
-      <td mat-cell *matCellDef="let element" class="text-wrap"> {{element.fullName}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="siblings">
-      <th mat-header-cell *matHeaderCellDef class="boton">  Hermanos </th>
-      <td mat-cell *matCellDef="let element">
-        <span *ngIf="element.siblingName !== 'No tiene hermanos'; else noSibling">Tiene</span>
-        <ng-template #noSibling>No tiene</ng-template>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="guardian">
-      <th mat-header-cell *matHeaderCellDef class="boton"> Apoderado </th>
-      <td mat-cell *matCellDef="let element" class="text-wrap">
-        {{ element.guardian?.fullName || 'Sin apoderado' }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef class="boton"> Acciones </th>
-      <td mat-cell *matCellDef="let element" class="action-icons">
-        <button mat-icon-button color="primary" (click)="openStudentDialog('Actualizar', element)" aria-label="Editar estudiante">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="deleteStudent(element.id)" aria-label="Eliminar estudiante">
-          <mat-icon>delete</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" (click)="openStudentDetailsDialog(element)" aria-label="Ver detalles del estudiante">
-          <mat-icon>visibility</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <!-- Tercer Card: Tabla de Estudiantes -->
+  <div class="col-12">
+    <mat-card class="cardWithShadow cardFullWidth">
+      <mat-card-content>
+        <div class="table-responsive">
+          <table mat-table [dataSource]="dataSource" class="full-width-table">
+            <ng-container matColumnDef="photo">
+              <th mat-header-cell *matHeaderCellDef class="boton"> Foto </th>
+              <td mat-cell *matCellDef="let element" class="photo-cell">
+                <div class="photo-container">
+                  <img *ngIf="element.gender?.toLowerCase() === 'masculino'" src="assets/images/profile/user6.jpg" class="profile-img">
+                  <img *ngIf="element.gender?.toLowerCase() === 'femenino'" src="assets/images/profile/user3.jpg" class="profile-img">
+                </div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="fullName">
+              <th mat-header-cell *matHeaderCellDef class="boton"> Nombre </th>
+              <td mat-cell *matCellDef="let element" class="text-wrap"> {{element.fullName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="siblings">
+              <th mat-header-cell *matHeaderCellDef class="boton"> Hermanos </th>
+              <td mat-cell *matCellDef="let element">
+                <span *ngIf="element.siblingName !== 'No tiene hermanos'; else noSibling">Tiene</span>
+                <ng-template #noSibling>No tiene</ng-template>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="guardian">
+              <th mat-header-cell *matHeaderCellDef class="boton"> Apoderado </th>
+              <td mat-cell *matCellDef="let element" class="text-wrap">
+                {{ element.guardian?.fullName || 'Sin apoderado' }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="boton"> Acciones </th>
+              <td mat-cell *matCellDef="let element" class="action-icons">
+                <button mat-icon-button color="primary" (click)="openStudentDialog('Actualizar', element)" aria-label="Editar estudiante">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteStudent(element.id)" aria-label="Eliminar estudiante">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-icon-button color="accent" (click)="openStudentDetailsDialog(element)" aria-label="Ver detalles del estudiante">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+          <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
