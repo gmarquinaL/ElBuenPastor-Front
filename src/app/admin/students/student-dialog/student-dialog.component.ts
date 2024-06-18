@@ -238,7 +238,7 @@ onSave(): void {
       operation.subscribe({
         next: (response) => {
           this.showSuccessMessage(`Estudiante ${this.action === 'Agregar' ? 'agregado' : 'actualizado'} con éxito`);
-          this.studentUpdated.emit(response.data); 
+          this.studentUpdated.emit(response.data);
           this.dialogRef.close({ updatedStudent: response.data });
         },
         error: (error) => {
@@ -251,6 +251,7 @@ onSave(): void {
     this.showErrorMessage('Por favor, complete el formulario correctamente');
   }
 }
+
 
 
   updateGradeOptions(level: string): void {

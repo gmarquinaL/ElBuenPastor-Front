@@ -97,14 +97,14 @@ export class StudentComponent implements OnInit, OnDestroy {
   loadStudents(): void {
     this.subscriptions.add(this.studentService.getAllStudentsSimple().subscribe({
       next: (response) => {
-        this.dataSource.data = response.data;
+        this.dataSource.data = response.data.sort((a, b) => a.fullName.localeCompare(b.fullName));
         this.dataSource.paginator = this.paginator;
         this.loadAdditionalStudentDetails();
       },
       error: () => this.showErrorMessage('Error al cargar los estudiantes')
     }));
   }
-
+  
   loadAdditionalStudentDetails(): void {
     const detailsRequests = this.dataSource.data.map(studentSimple =>
       this.studentService.getStudentDetails(studentSimple.id).pipe(
@@ -149,26 +149,41 @@ export class StudentComponent implements OnInit, OnDestroy {
     const index = this.dataSource.data.findIndex(student => student.id === updatedStudent.id);
     if (index !== -1) {
       this.dataSource.data[index] = updatedStudent;
-      this.dataSource.data = [...this.dataSource.data];
-      this.updateSiblingInfo(updatedStudent);
-
     } else {
-      this.dataSource.data = [updatedStudent, ...this.dataSource.data];
-      this.updateSiblingInfo(updatedStudent);
-
+      this.dataSource.data.push(updatedStudent);
     }
+  
+    this.dataSource.data.sort((a, b) => a.fullName.localeCompare(b.fullName));
+  
+    this.updateSiblingInfo();
+  
+    this.dataSource.data = [...this.dataSource.data]; 
     this.applyFilter();
   }
-  updateSiblingInfo(updatedStudent: StudentCombined): void {
+  
+  
+  
+  updateSiblingInfo(): void {
+    const guardians = new Set(this.dataSource.data.map(student => student.guardian?.fullName));
+  
+    guardians.forEach(guardianName => {
+      const siblings = this.dataSource.data.filter(student => student.guardian?.fullName === guardianName);
+      const siblingNames = siblings.map(student => student.fullName);
+  
+      siblings.forEach(student => {
+        student.siblingName = siblingNames.length > 1 ? siblingNames.filter(name => name !== student.fullName).join(', ') : 'No tiene hermanos';
+      });
+    });
+  
     this.dataSource.data.forEach(student => {
-      if (student.guardian?.fullName === updatedStudent.guardian?.fullName) {
-        student.siblingName = this.dataSource.data
-          .filter(sibling => sibling.guardian?.fullName === updatedStudent.guardian?.fullName && sibling.id !== student.id)
-          .map(sibling => sibling.fullName)
-          .join(', ') || 'No tiene hermanos';
+      if (!student.siblingName || student.siblingName === '') {
+        student.siblingName = 'No tiene hermanos';
       }
     });
   }
+  
+  
+  
   private openDialog(action: string, studentData?: Student): void {
     const dialogRef = this.dialog.open(StudentDialogComponent, {
       width: '650px',
