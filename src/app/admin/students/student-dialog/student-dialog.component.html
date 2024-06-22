@@ -1,15 +1,15 @@
 <mat-dialog-content>
   <form [formGroup]="studentForm" class="form-container">
     <!-- Campos de entrada para datos del estudiante -->
-    <mat-form-field appearance="fill" class="w-100">
+    <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('fullName')}">
       <mat-label>Nombre Completo</mat-label>
-      <input matInput formControlName="fullName" placeholder="Ingrese el nombre completo del estudiante" appOnlyLetters>
+      <input matInput formControlName="fullName" placeholder="Ingrese el nombre completo del estudiante" appOnlyLetters maxlength="70">
       <mat-error *ngIf="studentForm.get('fullName').errors?.['required']">Este campo es obligatorio.</mat-error>
       <mat-error *ngIf="studentForm.get('fullName').errors?.['minlength']">El nombre debe tener al menos 3 caracteres.</mat-error>
       <mat-error *ngIf="studentForm.get('fullName').errors?.['maxlength']">El nombre no debe exceder los 100 caracteres.</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="w-100">
+    <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('level')}">
       <mat-label>Nivel</mat-label>
       <mat-select formControlName="level">
         <mat-option value="inicial">Inicial</mat-option>
@@ -19,13 +19,13 @@
       <mat-error *ngIf="studentForm.get('level').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="w-100">
+    <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('section')}">
       <mat-label>Sección</mat-label>
-      <input matInput formControlName="section" placeholder="Ingrese la sección">
+      <input matInput formControlName="section" placeholder="Ingrese la sección" appUppercaseLettersAndHyphens maxlength="1">
       <mat-error *ngIf="studentForm.get('section').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="w-100">
+    <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('grade')}">
       <mat-label>Grado</mat-label>
       <mat-select formControlName="grade">
         <mat-option *ngFor="let grade of currentGradeOptions" [value]="grade">
@@ -35,7 +35,7 @@
       <mat-error *ngIf="studentForm.get('grade').errors?.['required']">Este campo es obligatorio.</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="w-100">
+    <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('gender')}">
       <mat-label>Género</mat-label>
       <mat-select formControlName="gender">
         <mat-option value="masculino">Masculino</mat-option>
@@ -69,9 +69,9 @@
     <div *ngIf="selectedGuardianOption === 'existing'">
       <!-- Asignar apoderado Existente -->
       <h3>Asignar Apoderado Existente</h3>
-      <mat-form-field appearance="fill" class="w-100">
+      <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('guardianName')}">
         <mat-label>Nombre del Apoderado Existente</mat-label>
-        <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián existente" [matAutocomplete]="guardianAuto" appOnlyLetters>
+        <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del apoderado existente" [matAutocomplete]="guardianAuto" appOnlyLetters>
         <mat-autocomplete #guardianAuto="matAutocomplete">
           <mat-option *ngFor="let guardian of filteredGuardians | async" [value]="guardian.fullName">
             {{ guardian.fullName }}
@@ -83,10 +83,9 @@
     <div *ngIf="selectedGuardianOption === 'new'">
       <!-- Crear Nuevo apoderado -->
       <h3>Crear Nuevo Apoderado</h3>
-      <mat-form-field appearance="fill" class="w-100">
+      <mat-form-field appearance="fill" class="w-100" [ngClass]="{'error-field': isFieldInvalid('newGuardianName')}">
         <mat-label>Nombre del Nuevo Apoderado</mat-label>
-        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo apoderado" appOnlyLetters>
-
+        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo apoderado" appOnlyLetters maxlength="70">
       </mat-form-field>
       <mat-checkbox formControlName="newGuardianLivesWithStudent">El nuevo apoderado vive con el estudiante</mat-checkbox>
       <button mat-button class="highlight-button" (click)="onCreateGuardian()">Crear apoderado</button>

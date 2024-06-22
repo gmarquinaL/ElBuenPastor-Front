@@ -252,6 +252,10 @@ onSave(): void {
   }
 }
 
+isFieldInvalid(field: string): boolean {
+  const formField = this.studentForm.get(field);
+  return formField && formField.invalid && (formField.dirty || formField.touched);
+}
 
 
   updateGradeOptions(level: string): void {

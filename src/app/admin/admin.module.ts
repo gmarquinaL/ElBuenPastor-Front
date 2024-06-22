@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material.module';
@@ -16,6 +16,7 @@ import { StudentDialogComponent } from './students/student-dialog/student-dialog
 import { StudentDetailsComponent } from './students/student-details/student-details.component';
 import { OnlyLettersDirective } from './only-letters.directive';
 import { AutoFormatDateDirective } from './auto-format-date.directive';
+import { UppercaseLettersAndHyphensDirective } from './appUppercaseLettersAndHyphens';
 @NgModule({
   declarations: [
     StudentComponent,
@@ -25,7 +26,8 @@ import { AutoFormatDateDirective } from './auto-format-date.directive';
     StudentDialogComponent,
     StudentDetailsComponent,
     OnlyLettersDirective,
-    AutoFormatDateDirective
+    AutoFormatDateDirective,
+    UppercaseLettersAndHyphensDirective
   ],
   imports: [
     CommonModule,
