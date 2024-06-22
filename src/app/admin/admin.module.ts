@@ -14,6 +14,8 @@ import { CustomDateAdapter } from '../shared/custom-adapter';
 import { DialogUploadFileComponent } from './payment/dialog-upload-file/dialog-upload-file.component';
 import { StudentDialogComponent } from './students/student-dialog/student-dialog.component';
 import { StudentDetailsComponent } from './students/student-details/student-details.component';
+import { OnlyLettersDirective } from './only-letters.directive';
+import { AutoFormatDateDirective } from './auto-format-date.directive';
 @NgModule({
   declarations: [
     StudentComponent,
@@ -21,7 +23,9 @@ import { StudentDetailsComponent } from './students/student-details/student-deta
     DialogFormPaymentComponent,
     DialogUploadFileComponent,
     StudentDialogComponent,
-    StudentDetailsComponent
+    StudentDetailsComponent,
+    OnlyLettersDirective,
+    AutoFormatDateDirective
   ],
   imports: [
     CommonModule,
@@ -32,6 +36,8 @@ import { StudentDetailsComponent } from './students/student-details/student-deta
     SharedModule,
     TablerIconsModule.pick(TablerIcons),
     MatNativeDateModule,
+    ReactiveFormsModule,
+
   ],
   providers: [
     DatePipe,

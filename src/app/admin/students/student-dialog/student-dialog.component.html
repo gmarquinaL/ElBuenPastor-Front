@@ -3,7 +3,7 @@
     <!-- Campos de entrada para datos del estudiante -->
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Nombre Completo</mat-label>
-      <input matInput formControlName="fullName" placeholder="Ingrese el nombre completo del estudiante">
+      <input matInput formControlName="fullName" placeholder="Ingrese el nombre completo del estudiante" appOnlyLetters>
       <mat-error *ngIf="studentForm.get('fullName').errors?.['required']">Este campo es obligatorio.</mat-error>
       <mat-error *ngIf="studentForm.get('fullName').errors?.['minlength']">El nombre debe tener al menos 3 caracteres.</mat-error>
       <mat-error *ngIf="studentForm.get('fullName').errors?.['maxlength']">El nombre no debe exceder los 100 caracteres.</mat-error>
@@ -71,7 +71,7 @@
       <h3>Asignar Apoderado Existente</h3>
       <mat-form-field appearance="fill" class="w-100">
         <mat-label>Nombre del Apoderado Existente</mat-label>
-        <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián existente" [matAutocomplete]="guardianAuto">
+        <input matInput formControlName="guardianName" placeholder="Ingrese el nombre del guardián existente" [matAutocomplete]="guardianAuto" appOnlyLetters>
         <mat-autocomplete #guardianAuto="matAutocomplete">
           <mat-option *ngFor="let guardian of filteredGuardians | async" [value]="guardian.fullName">
             {{ guardian.fullName }}
@@ -85,7 +85,7 @@
       <h3>Crear Nuevo Apoderado</h3>
       <mat-form-field appearance="fill" class="w-100">
         <mat-label>Nombre del Nuevo Apoderado</mat-label>
-        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo apoderado">
+        <input matInput formControlName="newGuardianName" placeholder="Ingrese el nombre del nuevo apoderado" appOnlyLetters>
 
       </mat-form-field>
       <mat-checkbox formControlName="newGuardianLivesWithStudent">El nuevo apoderado vive con el estudiante</mat-checkbox>
