@@ -11,7 +11,7 @@ export class OnlyLettersDirective {
   @HostListener('input', ['$event'])
   onInputChange(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
-    const filteredValue = input.value.replace(/[^a-zA-Z ]/g, '');
+    const filteredValue = input.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
     this.ngControl.control?.setValue(filteredValue);
   }
 }

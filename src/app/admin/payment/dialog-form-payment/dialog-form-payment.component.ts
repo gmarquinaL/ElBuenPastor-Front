@@ -5,6 +5,8 @@ import { PaymentService } from 'src/app/services/payment.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Payment } from 'src/app/model/payment.model';
 import Swal from 'sweetalert2';
+import * as moment from 'moment';
+import { Moment } from 'moment';
 
 @Component({
   selector: 'app-dialog-form-payment',
@@ -15,6 +17,10 @@ export class DialogFormPaymentComponent {
   paymentForm: FormGroup;
   action: string;
   localData: any;
+
+  currentDate: Moment = moment();
+  minDate: Date = this.currentDate.clone().subtract(5, 'years').toDate();
+  maxDate: Date = this.currentDate.clone().add(5, 'years').toDate();
 
   constructor(
     public dialogRef: MatDialogRef<DialogFormPaymentComponent>,
@@ -31,8 +37,8 @@ export class DialogFormPaymentComponent {
       name: [this.localData.name || '', Validators.required],
       concept: [this.localData.concept || '', Validators.required],
       amount: [this.localData.amount || '', [Validators.required, Validators.min(0.01)]],
-      paymentDate: [this.localData.paymentDate || '', Validators.required],
-      dueDate: [this.localData.dueDate || '', Validators.required]
+      paymentDate: [this.localData.paymentDate || '', [Validators.required]],
+      dueDate: [this.localData.dueDate || '', [Validators.required]]
     });
   }
 

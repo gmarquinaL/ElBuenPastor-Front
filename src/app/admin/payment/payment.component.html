@@ -13,7 +13,7 @@
       <div class="col-6 col-md-3 mb-2">
         <mat-form-field appearance="outline" class="w-100 hide-hint">
           <input matInput [matDatepicker]="startPicker" placeholder="Fecha de Pago Desde"
-            (dateChange)="applyFilters()" [(ngModel)]="paymentDateFrom" appAutoFormatDate>
+            (dateChange)="applyFilters()" [(ngModel)]="paymentDateFrom" [min]="minDate" [max]="maxDate" appAutoFormatDate>
           <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
           <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
@@ -21,7 +21,7 @@
       <div class="col-6 col-md-3 mb-2">
         <mat-form-field appearance="outline" class="w-100 hide-hint">
           <input matInput [matDatepicker]="endPicker" placeholder="Fecha de Pago Hasta"
-            (dateChange)="applyFilters()" [(ngModel)]="paymentDateTo" appAutoFormatDate>
+            (dateChange)="applyFilters()" [(ngModel)]="paymentDateTo" [min]="minDate" [max]="maxDate" appAutoFormatDate>
           <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
           <mat-datepicker #endPicker></mat-datepicker>
         </mat-form-field>

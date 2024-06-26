@@ -10,8 +10,8 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
   }]
 })
 export class UppercaseLettersAndHyphensDirective implements ControlValueAccessor {
-  private onChange: (value: any) => void;
-  private onTouched: () => void;
+  private onChange: (value: any) => void = () => {};
+  private onTouched: () => void = () => {};
 
   constructor(private el: ElementRef) {}
 
@@ -24,7 +24,7 @@ export class UppercaseLettersAndHyphensDirective implements ControlValueAccessor
   }
 
   writeValue(value: any): void {
-    this.el.nativeElement.value = value;
+    this.el.nativeElement.value = value ? value.toUpperCase().replace(/[^a-zA-Z-]/g, '') : '';
   }
 
   registerOnChange(fn: any): void {
@@ -33,5 +33,9 @@ export class UppercaseLettersAndHyphensDirective implements ControlValueAccessor
 
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    this.el.nativeElement.disabled = isDisabled;
   }
 }

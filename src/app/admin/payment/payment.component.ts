@@ -14,6 +14,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { exportPaymentsToExcel } from 'src/assets/excel-export.js';
 import { logoBase64 } from '../payment/logoBase64';
+import { Moment } from 'moment';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-payment',
@@ -30,6 +32,10 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   paymentDateFrom: Date | null = null;
   paymentDateTo: Date | null = null;
   textFilter: string = '';
+
+  currentDate: Moment = moment();
+  minDate: Date = this.currentDate.clone().subtract(5, 'years').toDate();
+  maxDate: Date = this.currentDate.clone().add(5, 'years').toDate();
 
   constructor(
     private cdRef: ChangeDetectorRef,
@@ -103,7 +109,7 @@ export class PaymentComponent implements OnInit, AfterViewInit {
   }
 
   applyTextFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
+    const filterValue = (event.target as HTMLInputElement).value.toUpperCase();
     this.textFilter = filterValue;
     this.applyFilters();
   }

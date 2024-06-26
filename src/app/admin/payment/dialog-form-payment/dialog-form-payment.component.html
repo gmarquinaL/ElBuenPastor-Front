@@ -21,7 +21,8 @@
 
   <mat-form-field appearance="outline" class="w-100">
     <mat-label>Fecha de Pago</mat-label>
-    <input matInput [matDatepicker]="paymentDatePicker" formControlName="paymentDate" appAutoFormatDate/>
+    <input matInput [matDatepicker]="paymentDatePicker" formControlName="paymentDate" appAutoFormatDate
+           [min]="minDate" [max]="maxDate"/>
     <mat-datepicker-toggle matSuffix [for]="paymentDatePicker"></mat-datepicker-toggle>
     <mat-datepicker #paymentDatePicker></mat-datepicker>
     <mat-error *ngIf="paymentForm.controls['paymentDate'].hasError('required')">Fecha de Pago es requerida</mat-error>
@@ -29,7 +30,8 @@
 
   <mat-form-field appearance="outline" class="w-100">
     <mat-label>Fecha de Vencimiento</mat-label>
-    <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate" appAutoFormatDate/>
+    <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate" appAutoFormatDate
+           [min]="minDate" [max]="maxDate"/>
     <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
     <mat-datepicker #dueDatePicker></mat-datepicker>
     <mat-error *ngIf="paymentForm.controls['dueDate'].hasError('required')">Fecha de Vencimiento es requerida</mat-error>
